@@ -68,6 +68,21 @@ object ECU {
     }
     
     /**
+     * 면적 단위 변환을 위한 진입점
+     * 
+     * @param input "100m²", "10.5ft²", "2acre" 등의 형식
+     * @return Area 객체
+     * 
+     * @example
+     * ```kotlin
+     * val area = ECU.area("100m²").to("ft²")  // 1076.39 ft²
+     * ```
+     */
+    fun area(input: String): Area {
+        return Area.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -106,6 +121,14 @@ object ECU {
                 // 온도 단위 체크
                 val temperature = temperature(input)
                 return suggestBetterTemperatureUnit(temperature)
+            } catch (e: Exception) {
+                // 무시
+            }
+            
+            try {
+                // 면적 단위 체크
+                val area = area(input)
+                return suggestBetterAreaUnit(area)
             } catch (e: Exception) {
                 // 무시
             }
@@ -186,6 +209,35 @@ object ECU {
             }
         }
         
+        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
+            val sqm = area.squareMeters
+            
+            return when {
+                sqm < 0.01 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm * 10000, "cm²").format(),
+                        reason = "Consider using square centimeters for small areas"
+                    )
+                }
+                sqm > 1000000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 1000000, "km²").format(),
+                        reason = "Consider using square kilometers for large areas"
+                    )
+                }
+                sqm > 10000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 10000, "ha").format(),
+                        reason = "Consider using hectares for large land areas"
+                    )
+                }
+                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
         private fun suggestBetterWeightUnit(weight: Weight): UnitSuggestion {
             val kg = weight.kilograms
             
@@ -258,6 +310,35 @@ object ECU {
                 else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
+            val sqm = area.squareMeters
+            
+            return when {
+                sqm < 0.01 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm * 10000, "cm²").format(),
+                        reason = "Consider using square centimeters for small areas"
+                    )
+                }
+                sqm > 1000000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 1000000, "km²").format(),
+                        reason = "Consider using square kilometers for large areas"
+                    )
+                }
+                sqm > 10000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 10000, "ha").format(),
+                        reason = "Consider using hectares for large land areas"
+                    )
+                }
+                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -321,6 +402,35 @@ object ECU {
             }
         }
         
+        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
+            val sqm = area.squareMeters
+            
+            return when {
+                sqm < 0.01 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm * 10000, "cm²").format(),
+                        reason = "Consider using square centimeters for small areas"
+                    )
+                }
+                sqm > 1000000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 1000000, "km²").format(),
+                        reason = "Consider using square kilometers for large areas"
+                    )
+                }
+                sqm > 10000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 10000, "ha").format(),
+                        reason = "Consider using hectares for large land areas"
+                    )
+                }
+                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
         /**
          * 여러 무게를 동일한 단위로 변환
          */
@@ -345,6 +455,15 @@ object ECU {
         fun convertTemperatures(inputs: List<String>, targetUnit: String): List<Temperature> {
             return inputs.map { input ->
                 temperature(input).to(targetUnit)
+            }
+        }
+        
+        /**
+         * 여러 면적을 동일한 단위로 변환
+         */
+        fun convertAreas(inputs: List<String>, targetUnit: String): List<Area> {
+            return inputs.map { input ->
+                area(input).to(targetUnit)
             }
         }
         
@@ -391,6 +510,35 @@ object ECU {
                 else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
+            val sqm = area.squareMeters
+            
+            return when {
+                sqm < 0.01 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm * 10000, "cm²").format(),
+                        reason = "Consider using square centimeters for small areas"
+                    )
+                }
+                sqm > 1000000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 1000000, "km²").format(),
+                        reason = "Consider using square kilometers for large areas"
+                    )
+                }
+                sqm > 10000 -> {
+                    UnitSuggestion(
+                        original = area.toString(),
+                        suggested = Area.of(sqm / 10000, "ha").format(),
+                        reason = "Consider using hectares for large land areas"
+                    )
+                }
+                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -409,6 +557,27 @@ object ECU {
          */
         fun getSupportedWeightUnits(): Set<String> {
             return UnitRegistry.getUnitsByCategory(UnitCategory.WEIGHT)
+        }
+        
+        /**
+         * 지원되는 모든 부피 단위 조회
+         */
+        fun getSupportedVolumeUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.VOLUME)
+        }
+        
+        /**
+         * 지원되는 모든 온도 단위 조회
+         */
+        fun getSupportedTemperatureUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.TEMPERATURE)
+        }
+        
+        /**
+         * 지원되는 모든 면적 단위 조회
+         */
+        fun getSupportedAreaUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.AREA)
         }
         
         /**
