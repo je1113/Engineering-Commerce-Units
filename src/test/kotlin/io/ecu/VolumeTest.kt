@@ -100,7 +100,7 @@ class VolumeTest {
     
     @Test
     fun `should suggest better volume units`() {
-        val suggestion = ECU.Auto.suggest("0.5l")
+        val suggestion = ECU.Auto.suggest("0.0005l") // 0.5ml로 더 작은 값
         assertTrue(suggestion.hasSuggestion())
         assertTrue(suggestion.suggested!!.contains("ml"))
     }

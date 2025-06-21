@@ -9,14 +9,6 @@ object ECU {
     
     /**
      * 길이 단위 변환을 위한 진입점
-     * 
-     * @param input "5m", "10.5ft", "100cm" 등의 형식
-     * @return Length 객체
-     * 
-     * @example
-     * ```kotlin
-     * val length = ECU.length("5m").to("ft")  // 16.40 ft
-     * ```
      */
     fun length(input: String): Length {
         return Length.parse(input)
@@ -24,14 +16,6 @@ object ECU {
     
     /**
      * 무게 단위 변환을 위한 진입점
-     * 
-     * @param input "5kg", "10.5lb", "100g" 등의 형식
-     * @return Weight 객체
-     * 
-     * @example
-     * ```kotlin
-     * val weight = ECU.weight("5kg").to("lbs")  // 11.02 lbs
-     * ```
      */
     fun weight(input: String): Weight {
         return Weight.parse(input)
@@ -39,14 +23,6 @@ object ECU {
     
     /**
      * 부피 단위 변환을 위한 진입점
-     * 
-     * @param input "5l", "10.5gal", "100ml" 등의 형식
-     * @return Volume 객체
-     * 
-     * @example
-     * ```kotlin
-     * val volume = ECU.volume("5l").to("gal")  // 1.32 gal
-     * ```
      */
     fun volume(input: String): Volume {
         return Volume.parse(input)
@@ -54,14 +30,6 @@ object ECU {
     
     /**
      * 온도 단위 변환을 위한 진입점
-     * 
-     * @param input "25°C", "77F", "298K" 등의 형식
-     * @return Temperature 객체
-     * 
-     * @example
-     * ```kotlin
-     * val temp = ECU.temperature("25°C").to("°F")  // 77.0°F
-     * ```
      */
     fun temperature(input: String): Temperature {
         return Temperature.parse(input)
@@ -69,14 +37,6 @@ object ECU {
     
     /**
      * 면적 단위 변환을 위한 진입점
-     * 
-     * @param input "100m²", "10.5ft²", "2acre" 등의 형식
-     * @return Area 객체
-     * 
-     * @example
-     * ```kotlin
-     * val area = ECU.area("100m²").to("ft²")  // 1076.39 ft²
-     * ```
      */
     fun area(input: String): Area {
         return Area.parse(input)
@@ -88,49 +48,41 @@ object ECU {
     object Auto {
         /**
          * 더 적절한 단위 제안
-         * 
-         * @param input 현재 단위
-         * @return 제안 결과
          */
         fun suggest(input: String): UnitSuggestion {
             try {
-                // 길이 단위 체크
                 val length = length(input)
                 return suggestBetterLengthUnit(length)
             } catch (e: Exception) {
-                // 다른 단위 타입들도 체크할 예정
+                // 다른 단위 타입 시도
             }
             
             try {
-                // 무게 단위 체크
                 val weight = weight(input)
                 return suggestBetterWeightUnit(weight)
             } catch (e: Exception) {
-                // 무시
+                // 다른 단위 타입 시도
             }
             
             try {
-                // 부피 단위 체크
                 val volume = volume(input)
                 return suggestBetterVolumeUnit(volume)
             } catch (e: Exception) {
-                // 무시
+                // 다른 단위 타입 시도
             }
             
             try {
-                // 온도 단위 체크
                 val temperature = temperature(input)
                 return suggestBetterTemperatureUnit(temperature)
             } catch (e: Exception) {
-                // 무시
+                // 다른 단위 타입 시도
             }
             
             try {
-                // 면적 단위 체크
                 val area = area(input)
                 return suggestBetterAreaUnit(area)
             } catch (e: Exception) {
-                // 무시
+                // 모든 타입 실패
             }
             
             return UnitSuggestion(input, null, "No suggestion available")
@@ -162,79 +114,6 @@ object ECU {
                     )
                 }
                 else -> UnitSuggestion(length.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
-            val liters = volume.liters
-            
-            return when {
-                liters < 0.001 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters * 1000, "ml").format(),
-                        reason = "Consider using milliliters for small volumes"
-                    )
-                }
-                liters > 1000 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters / 1000, "m³").format(),
-                        reason = "Consider using cubic meters for large volumes"
-                    )
-                }
-                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
-            val celsius = temperature.celsius
-            
-            return when {
-                celsius < -200 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(temperature.kelvin, "K").format(),
-                        reason = "Consider using Kelvin for very low temperatures"
-                    )
-                }
-                temperature.symbol == "K" && celsius > -100 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(celsius, "°C").format(),
-                        reason = "Consider using Celsius for everyday temperatures"
-                    )
-                }
-                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
-            val sqm = area.squareMeters
-            
-            return when {
-                sqm < 0.01 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm * 10000, "cm²").format(),
-                        reason = "Consider using square centimeters for small areas"
-                    )
-                }
-                sqm > 1000000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 1000000, "km²").format(),
-                        reason = "Consider using square kilometers for large areas"
-                    )
-                }
-                sqm > 10000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 10000, "ha").format(),
-                        reason = "Consider using hectares for large land areas"
-                    )
-                }
-                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
             }
         }
         
@@ -346,88 +225,11 @@ object ECU {
      */
     object Batch {
         /**
-         * 여러 값을 동일한 단위로 변환
-         * 
-         * @param inputs 변환할 값들
-         * @param targetUnit 목표 단위
-         * @return 변환된 값들
+         * 여러 길이를 동일한 단위로 변환
          */
         fun convertLengths(inputs: List<String>, targetUnit: String): List<Length> {
             return inputs.map { input ->
                 length(input).to(targetUnit)
-            }
-        }
-        
-        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
-            val liters = volume.liters
-            
-            return when {
-                liters < 0.001 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters * 1000, "ml").format(),
-                        reason = "Consider using milliliters for small volumes"
-                    )
-                }
-                liters > 1000 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters / 1000, "m³").format(),
-                        reason = "Consider using cubic meters for large volumes"
-                    )
-                }
-                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
-            val celsius = temperature.celsius
-            
-            return when {
-                celsius < -200 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(temperature.kelvin, "K").format(),
-                        reason = "Consider using Kelvin for very low temperatures"
-                    )
-                }
-                temperature.symbol == "K" && celsius > -100 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(celsius, "°C").format(),
-                        reason = "Consider using Celsius for everyday temperatures"
-                    )
-                }
-                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
-            val sqm = area.squareMeters
-            
-            return when {
-                sqm < 0.01 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm * 10000, "cm²").format(),
-                        reason = "Consider using square centimeters for small areas"
-                    )
-                }
-                sqm > 1000000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 1000000, "km²").format(),
-                        reason = "Consider using square kilometers for large areas"
-                    )
-                }
-                sqm > 10000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 10000, "ha").format(),
-                        reason = "Consider using hectares for large land areas"
-                    )
-                }
-                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
             }
         }
         
@@ -464,79 +266,6 @@ object ECU {
         fun convertAreas(inputs: List<String>, targetUnit: String): List<Area> {
             return inputs.map { input ->
                 area(input).to(targetUnit)
-            }
-        }
-        
-        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
-            val liters = volume.liters
-            
-            return when {
-                liters < 0.001 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters * 1000, "ml").format(),
-                        reason = "Consider using milliliters for small volumes"
-                    )
-                }
-                liters > 1000 -> {
-                    UnitSuggestion(
-                        original = volume.toString(),
-                        suggested = Volume.of(liters / 1000, "m³").format(),
-                        reason = "Consider using cubic meters for large volumes"
-                    )
-                }
-                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
-            val celsius = temperature.celsius
-            
-            return when {
-                celsius < -200 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(temperature.kelvin, "K").format(),
-                        reason = "Consider using Kelvin for very low temperatures"
-                    )
-                }
-                temperature.symbol == "K" && celsius > -100 -> {
-                    UnitSuggestion(
-                        original = temperature.toString(),
-                        suggested = Temperature.of(celsius, "°C").format(),
-                        reason = "Consider using Celsius for everyday temperatures"
-                    )
-                }
-                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
-            }
-        }
-        
-        private fun suggestBetterAreaUnit(area: Area): UnitSuggestion {
-            val sqm = area.squareMeters
-            
-            return when {
-                sqm < 0.01 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm * 10000, "cm²").format(),
-                        reason = "Consider using square centimeters for small areas"
-                    )
-                }
-                sqm > 1000000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 1000000, "km²").format(),
-                        reason = "Consider using square kilometers for large areas"
-                    )
-                }
-                sqm > 10000 -> {
-                    UnitSuggestion(
-                        original = area.toString(),
-                        suggested = Area.of(sqm / 10000, "ha").format(),
-                        reason = "Consider using hectares for large land areas"
-                    )
-                }
-                else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
             }
         }
     }

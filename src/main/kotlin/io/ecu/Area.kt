@@ -247,7 +247,7 @@ class Area private constructor(
      */
     override fun format(locale: String?): String {
         val formattedValue = if (precision >= 0) {
-            String.format("%.${precision}f", value)
+            "%.${precision}f".format(value)
         } else {
             value.toString()
         }
