@@ -38,6 +38,36 @@ object ECU {
     }
     
     /**
+     * 부피 단위 변환을 위한 진입점
+     * 
+     * @param input "5l", "10.5gal", "100ml" 등의 형식
+     * @return Volume 객체
+     * 
+     * @example
+     * ```kotlin
+     * val volume = ECU.volume("5l").to("gal")  // 1.32 gal
+     * ```
+     */
+    fun volume(input: String): Volume {
+        return Volume.parse(input)
+    }
+    
+    /**
+     * 온도 단위 변환을 위한 진입점
+     * 
+     * @param input "25°C", "77F", "298K" 등의 형식
+     * @return Temperature 객체
+     * 
+     * @example
+     * ```kotlin
+     * val temp = ECU.temperature("25°C").to("°F")  // 77.0°F
+     * ```
+     */
+    fun temperature(input: String): Temperature {
+        return Temperature.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -60,6 +90,22 @@ object ECU {
                 // 무게 단위 체크
                 val weight = weight(input)
                 return suggestBetterWeightUnit(weight)
+            } catch (e: Exception) {
+                // 무시
+            }
+            
+            try {
+                // 부피 단위 체크
+                val volume = volume(input)
+                return suggestBetterVolumeUnit(volume)
+            } catch (e: Exception) {
+                // 무시
+            }
+            
+            try {
+                // 온도 단위 체크
+                val temperature = temperature(input)
+                return suggestBetterTemperatureUnit(temperature)
             } catch (e: Exception) {
                 // 무시
             }
@@ -96,6 +142,50 @@ object ECU {
             }
         }
         
+        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
+            val liters = volume.liters
+            
+            return when {
+                liters < 0.001 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters * 1000, "ml").format(),
+                        reason = "Consider using milliliters for small volumes"
+                    )
+                }
+                liters > 1000 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters / 1000, "m³").format(),
+                        reason = "Consider using cubic meters for large volumes"
+                    )
+                }
+                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
+        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
+            val celsius = temperature.celsius
+            
+            return when {
+                celsius < -200 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(temperature.kelvin, "K").format(),
+                        reason = "Consider using Kelvin for very low temperatures"
+                    )
+                }
+                temperature.symbol == "K" && celsius > -100 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(celsius, "°C").format(),
+                        reason = "Consider using Celsius for everyday temperatures"
+                    )
+                }
+                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
         private fun suggestBetterWeightUnit(weight: Weight): UnitSuggestion {
             val kg = weight.kilograms
             
@@ -124,6 +214,50 @@ object ECU {
                 else -> UnitSuggestion(weight.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
+            val liters = volume.liters
+            
+            return when {
+                liters < 0.001 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters * 1000, "ml").format(),
+                        reason = "Consider using milliliters for small volumes"
+                    )
+                }
+                liters > 1000 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters / 1000, "m³").format(),
+                        reason = "Consider using cubic meters for large volumes"
+                    )
+                }
+                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
+        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
+            val celsius = temperature.celsius
+            
+            return when {
+                celsius < -200 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(temperature.kelvin, "K").format(),
+                        reason = "Consider using Kelvin for very low temperatures"
+                    )
+                }
+                temperature.symbol == "K" && celsius > -100 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(celsius, "°C").format(),
+                        reason = "Consider using Celsius for everyday temperatures"
+                    )
+                }
+                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -143,12 +277,118 @@ object ECU {
             }
         }
         
+        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
+            val liters = volume.liters
+            
+            return when {
+                liters < 0.001 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters * 1000, "ml").format(),
+                        reason = "Consider using milliliters for small volumes"
+                    )
+                }
+                liters > 1000 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters / 1000, "m³").format(),
+                        reason = "Consider using cubic meters for large volumes"
+                    )
+                }
+                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
+        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
+            val celsius = temperature.celsius
+            
+            return when {
+                celsius < -200 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(temperature.kelvin, "K").format(),
+                        reason = "Consider using Kelvin for very low temperatures"
+                    )
+                }
+                temperature.symbol == "K" && celsius > -100 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(celsius, "°C").format(),
+                        reason = "Consider using Celsius for everyday temperatures"
+                    )
+                }
+                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
         /**
          * 여러 무게를 동일한 단위로 변환
          */
         fun convertWeights(inputs: List<String>, targetUnit: String): List<Weight> {
             return inputs.map { input ->
                 weight(input).to(targetUnit)
+            }
+        }
+        
+        /**
+         * 여러 부피를 동일한 단위로 변환
+         */
+        fun convertVolumes(inputs: List<String>, targetUnit: String): List<Volume> {
+            return inputs.map { input ->
+                volume(input).to(targetUnit)
+            }
+        }
+        
+        /**
+         * 여러 온도를 동일한 단위로 변환
+         */
+        fun convertTemperatures(inputs: List<String>, targetUnit: String): List<Temperature> {
+            return inputs.map { input ->
+                temperature(input).to(targetUnit)
+            }
+        }
+        
+        private fun suggestBetterVolumeUnit(volume: Volume): UnitSuggestion {
+            val liters = volume.liters
+            
+            return when {
+                liters < 0.001 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters * 1000, "ml").format(),
+                        reason = "Consider using milliliters for small volumes"
+                    )
+                }
+                liters > 1000 -> {
+                    UnitSuggestion(
+                        original = volume.toString(),
+                        suggested = Volume.of(liters / 1000, "m³").format(),
+                        reason = "Consider using cubic meters for large volumes"
+                    )
+                }
+                else -> UnitSuggestion(volume.toString(), null, "Current unit is appropriate")
+            }
+        }
+        
+        private fun suggestBetterTemperatureUnit(temperature: Temperature): UnitSuggestion {
+            val celsius = temperature.celsius
+            
+            return when {
+                celsius < -200 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(temperature.kelvin, "K").format(),
+                        reason = "Consider using Kelvin for very low temperatures"
+                    )
+                }
+                temperature.symbol == "K" && celsius > -100 -> {
+                    UnitSuggestion(
+                        original = temperature.toString(),
+                        suggested = Temperature.of(celsius, "°C").format(),
+                        reason = "Consider using Celsius for everyday temperatures"
+                    )
+                }
+                else -> UnitSuggestion(temperature.toString(), null, "Current unit is appropriate")
             }
         }
     }
