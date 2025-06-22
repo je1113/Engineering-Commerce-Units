@@ -1,9 +1,6 @@
 package io.ecu
 
 import kotlin.math.pow
-import kotlin.math.round
-import kotlin.math.floor
-import kotlin.math.ceil
 
 /**
  * 모든 물리량의 기본 인터페이스
@@ -79,7 +76,10 @@ enum class UnitCategory {
     FLOW,
     POWER,
     TORQUE,
-    FREQUENCY
+    FREQUENCY,
+    SPEED,
+    ENERGY,
+    FORCE
 }
 
 /**
@@ -140,34 +140,18 @@ abstract class BaseUnit<T : BaseUnit<T>>(
     
     override fun format(locale: String?): String {
         val formattedValue = if (precision >= 0) {
-            applyRounding(baseValue, precision)
+            formatNumber(value, precision, roundingMode)
         } else {
-            baseValue
+            value.toString()
         }
         
         return "$formattedValue $symbol"
     }
     
     /**
-     * 반올림 적용
+     * 현재 단위에서의 값
      */
-    protected fun applyRounding(value: Double, digits: Int): Double {
-        val factor = 10.0.pow(digits)
-        return when (roundingMode) {
-            RoundingMode.HALF_UP -> round(value * factor) / factor
-            RoundingMode.HALF_DOWN -> floor(value * factor + 0.5) / factor
-            RoundingMode.HALF_EVEN -> {
-                val scaled = value * factor
-                val rounded = round(scaled)
-                if (kotlin.math.abs(scaled - rounded) == 0.5) {
-                    if (rounded.toLong() % 2 == 0L) rounded / factor
-                    else floor(scaled) / factor
-                } else rounded / factor
-            }
-            RoundingMode.UP -> ceil(value * factor) / factor
-            RoundingMode.DOWN -> floor(value * factor) / factor
-        }
-    }
+    abstract val value: Double
     
     override fun toString(): String = format()
     
@@ -177,14 +161,25 @@ abstract class BaseUnit<T : BaseUnit<T>>(
         
         other as BaseUnit<*>
         
-        // 같은 카테고리의 단위끼리만 비교하고, baseValue가 충분히 가까우면 같은 것으로 판단
-        return category == other.category &&
-                kotlin.math.abs(baseValue - other.baseValue) < 1e-10
+        return kotlin.math.abs(baseValue - other.baseValue) < 1e-10 &&
+                symbol == other.symbol &&
+                category == other.category
     }
     
     override fun hashCode(): Int {
         var result = baseValue.hashCode()
+        result = 31 * result + symbol.hashCode()
         result = 31 * result + category.hashCode()
         return result
     }
 }
+
+/**
+ * 플랫폼 독립적인 숫자 포맷팅
+ */
+expect fun formatNumber(value: Double, precision: Int, roundingMode: RoundingMode): String
+
+/**
+ * 플랫폼 독립적인 반올림
+ */
+expect fun applyRounding(value: Double, digits: Int, mode: RoundingMode): Double

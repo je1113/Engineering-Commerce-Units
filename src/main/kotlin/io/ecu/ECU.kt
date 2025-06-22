@@ -43,6 +43,13 @@ object ECU {
     }
     
     /**
+     * 압력 단위 변환을 위한 진입점
+     */
+    fun pressure(input: String): Pressure {
+        return Pressure.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -81,6 +88,13 @@ object ECU {
             try {
                 val area = area(input)
                 return suggestBetterAreaUnit(area)
+            } catch (e: Exception) {
+                // 다른 단위 타입 시도
+            }
+            
+            try {
+                val pressure = pressure(input)
+                return suggestBetterPressureUnit(pressure)
             } catch (e: Exception) {
                 // 모든 타입 실패
             }
@@ -218,6 +232,35 @@ object ECU {
                 else -> UnitSuggestion(area.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterPressureUnit(pressure: Pressure): UnitSuggestion {
+            val pa = pressure.pascals
+            
+            return when {
+                pa < 1000 -> {
+                    UnitSuggestion(
+                        original = pressure.toString(),
+                        suggested = Pressure.of(pa, "Pa").format(),
+                        reason = "Consider using Pascals for low pressures"
+                    )
+                }
+                pa in 1000.0..100000.0 -> {
+                    UnitSuggestion(
+                        original = pressure.toString(),
+                        suggested = Pressure.of(pa / 1000, "kPa").format(),
+                        reason = "Consider using kilopascals for medium pressures"
+                    )
+                }
+                pa > 1000000 -> {
+                    UnitSuggestion(
+                        original = pressure.toString(),
+                        suggested = Pressure.of(pa / 100000, "bar").format(),
+                        reason = "Consider using bars for high pressures"
+                    )
+                }
+                else -> UnitSuggestion(pressure.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -268,6 +311,15 @@ object ECU {
                 area(input).to(targetUnit)
             }
         }
+        
+        /**
+         * 여러 압력을 동일한 단위로 변환
+         */
+        fun convertPressures(inputs: List<String>, targetUnit: String): List<Pressure> {
+            return inputs.map { input ->
+                pressure(input).to(targetUnit)
+            }
+        }
     }
     
     /**
@@ -307,6 +359,13 @@ object ECU {
          */
         fun getSupportedAreaUnits(): Set<String> {
             return UnitRegistry.getUnitsByCategory(UnitCategory.AREA)
+        }
+        
+        /**
+         * 지원되는 모든 압력 단위 조회
+         */
+        fun getSupportedPressureUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.PRESSURE)
         }
         
         /**

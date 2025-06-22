@@ -51,7 +51,7 @@ object UnitRegistry {
      * 카테고리별 모든 단위 조회
      */
     fun getUnitsByCategory(category: UnitCategory): Set<String> {
-        return categoryMap[category] ?: emptySet()
+        return categoryMap[category]?.toSet() ?: emptySet()
     }
     
     /**
@@ -131,6 +131,13 @@ object UnitRegistry {
         register(UnitDefinition("acre", "acre", UnitCategory.AREA, 4046.86, aliases = setOf("acres")))
         register(UnitDefinition("ha", "hectare", UnitCategory.AREA, 10000.0, aliases = setOf("hectare", "hectares")))
         
+        // 속도 단위 (기본: m/s)
+        register(UnitDefinition("m/s", "meters per second", UnitCategory.SPEED, 1.0, true, setOf("mps")))
+        register(UnitDefinition("km/h", "kilometers per hour", UnitCategory.SPEED, 0.277778, aliases = setOf("kmh", "kph")))
+        register(UnitDefinition("mph", "miles per hour", UnitCategory.SPEED, 0.44704, aliases = setOf("mi/h")))
+        register(UnitDefinition("knot", "knot", UnitCategory.SPEED, 0.514444, aliases = setOf("knots", "kt")))
+        register(UnitDefinition("ft/s", "feet per second", UnitCategory.SPEED, 0.3048, aliases = setOf("fps")))
+        
         // 압력 단위 (기본: Pascal)
         register(UnitDefinition("Pa", "Pascal", UnitCategory.PRESSURE, 1.0, true, setOf("pascal")))
         register(UnitDefinition("kPa", "kilopascal", UnitCategory.PRESSURE, 1000.0, aliases = setOf("kilopascal")))
@@ -138,6 +145,27 @@ object UnitRegistry {
         register(UnitDefinition("psi", "pounds per square inch", UnitCategory.PRESSURE, 6894.76, aliases = setOf("lb/in²")))
         register(UnitDefinition("atm", "atmosphere", UnitCategory.PRESSURE, 101325.0, aliases = setOf("atmospheres")))
         register(UnitDefinition("mmHg", "millimeter of mercury", UnitCategory.PRESSURE, 133.322, aliases = setOf("mm Hg", "torr")))
+        
+        // 에너지 단위 (기본: Joule)
+        register(UnitDefinition("J", "Joule", UnitCategory.ENERGY, 1.0, true, setOf("joule", "joules")))
+        register(UnitDefinition("kJ", "kilojoule", UnitCategory.ENERGY, 1000.0, aliases = setOf("kilojoule", "kilojoules")))
+        register(UnitDefinition("cal", "calorie", UnitCategory.ENERGY, 4.184, aliases = setOf("calorie", "calories")))
+        register(UnitDefinition("kcal", "kilocalorie", UnitCategory.ENERGY, 4184.0, aliases = setOf("kilocalorie", "kilocalories", "Cal")))
+        register(UnitDefinition("kWh", "kilowatt hour", UnitCategory.ENERGY, 3600000.0, aliases = setOf("kilowatt-hour")))
+        register(UnitDefinition("BTU", "British thermal unit", UnitCategory.ENERGY, 1055.06, aliases = setOf("btu")))
+        
+        // 전력 단위 (기본: Watt)
+        register(UnitDefinition("W", "Watt", UnitCategory.POWER, 1.0, true, setOf("watt", "watts")))
+        register(UnitDefinition("kW", "kilowatt", UnitCategory.POWER, 1000.0, aliases = setOf("kilowatt", "kilowatts")))
+        register(UnitDefinition("MW", "megawatt", UnitCategory.POWER, 1000000.0, aliases = setOf("megawatt", "megawatts")))
+        register(UnitDefinition("hp", "horsepower", UnitCategory.POWER, 745.7, aliases = setOf("horsepower", "HP")))
+        register(UnitDefinition("PS", "metric horsepower", UnitCategory.POWER, 735.5, aliases = setOf("ps")))
+        
+        // 힘 단위 (기본: Newton)
+        register(UnitDefinition("N", "Newton", UnitCategory.FORCE, 1.0, true, setOf("newton", "newtons")))
+        register(UnitDefinition("kN", "kilonewton", UnitCategory.FORCE, 1000.0, aliases = setOf("kilonewton", "kilonewtons")))
+        register(UnitDefinition("lbf", "pound-force", UnitCategory.FORCE, 4.44822, aliases = setOf("pound force", "pounds force")))
+        register(UnitDefinition("kgf", "kilogram-force", UnitCategory.FORCE, 9.80665, aliases = setOf("kilogram force", "kilograms force")))
     }
     
     /**
@@ -151,13 +179,13 @@ object UnitRegistry {
      * 단위 정의 제거
      */
     fun unregister(symbol: String) {
-        val definition = definitions[symbol]
+        val definition = definitions[symbol.lowercase()]
         if (definition != null) {
-            definitions.remove(symbol)
+            definitions.remove(symbol.lowercase())
             definition.aliases.forEach { alias ->
-                definitions.remove(alias)
+                definitions.remove(alias.lowercase())
             }
-            categoryMap[definition.category]?.remove(symbol)
+            categoryMap[definition.category]?.remove(definition.symbol)
         }
     }
     
@@ -168,5 +196,18 @@ object UnitRegistry {
         definitions.clear()
         categoryMap.clear()
         registerStandardUnits()
+    }
+    
+    /**
+     * 커스텀 단위 등록
+     */
+    fun registerCustomUnit(
+        symbol: String,
+        displayName: String,
+        category: UnitCategory,
+        baseRatio: Double,
+        aliases: Set<String> = emptySet()
+    ) {
+        register(UnitDefinition(symbol, displayName, category, baseRatio, false, aliases))
     }
 }
