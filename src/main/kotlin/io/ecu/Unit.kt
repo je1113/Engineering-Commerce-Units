@@ -76,6 +76,8 @@ enum class UnitCategory {
     TEMPERATURE,
     AREA,
     PRESSURE,
+    SPEED,
+    ENERGY,
     FLOW,
     POWER,
     TORQUE,

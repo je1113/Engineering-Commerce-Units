@@ -100,8 +100,6 @@ class Length private constructor(
             throw IllegalArgumentException("$targetSymbol is not a length unit")
         }
         
-        val targetValue = baseValue / targetDefinition.baseRatio
-        
         return Length(
             baseValue = baseValue,
             symbol = targetDefinition.symbol,
@@ -136,6 +134,12 @@ class Length private constructor(
      */
     val meters: Double
         get() = baseValue
+    
+    /**
+     * 킬로미터 단위로 값 반환
+     */
+    val kilometers: Double
+        get() = baseValue / 1000
     
     /**
      * 센티미터 단위로 값 반환

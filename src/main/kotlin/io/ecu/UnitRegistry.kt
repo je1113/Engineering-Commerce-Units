@@ -138,6 +138,15 @@ object UnitRegistry {
         register(UnitDefinition("psi", "pounds per square inch", UnitCategory.PRESSURE, 6894.76, aliases = setOf("lb/in²")))
         register(UnitDefinition("atm", "atmosphere", UnitCategory.PRESSURE, 101325.0, aliases = setOf("atmospheres")))
         register(UnitDefinition("mmHg", "millimeter of mercury", UnitCategory.PRESSURE, 133.322, aliases = setOf("mm Hg", "torr")))
+        
+        // 속도 단위 (기본: m/s)
+        register(UnitDefinition("m/s", "meters per second", UnitCategory.SPEED, 1.0, true, setOf("mps", "meter per second", "meters per second")))
+        register(UnitDefinition("km/h", "kilometers per hour", UnitCategory.SPEED, 0.277778, aliases = setOf("kmh", "kph", "kilometer per hour", "kilometers per hour")))
+        register(UnitDefinition("mph", "miles per hour", UnitCategory.SPEED, 0.44704, aliases = setOf("mi/h", "mile per hour", "miles per hour")))
+        register(UnitDefinition("kn", "knot", UnitCategory.SPEED, 0.514444, aliases = setOf("knot", "knots", "kt", "nautical mile per hour")))
+        register(UnitDefinition("ft/s", "feet per second", UnitCategory.SPEED, 0.3048, aliases = setOf("fps", "foot per second", "feet per second")))
+        register(UnitDefinition("cm/s", "centimeters per second", UnitCategory.SPEED, 0.01, aliases = setOf("centimeter per second", "centimeters per second")))
+        register(UnitDefinition("Ma", "Mach", UnitCategory.SPEED, 343.0, aliases = setOf("mach", "Mach number")))
     }
     
     /**

@@ -113,13 +113,82 @@ class ECUIntegrationTest {
             ECU.Auto.suggest("0.0005l"),    // → ml (더 작은 값으로 수정)
             ECU.Auto.suggest("250K"),       // → °C
             ECU.Auto.suggest("0.005m²"),    // → cm²
-            ECU.Auto.suggest("0.1m")        // → cm
+            ECU.Auto.suggest("0.1m"),       // → cm
+            ECU.Auto.suggest("0.05m/s"),    // → km/h (느린 속도)
+            ECU.Auto.suggest("400m/s")      // → Ma (초음속)
         )
         
-        suggestions.take(4).forEach { suggestion -> // 마지막 하나 제외
+        suggestions.take(6).forEach { suggestion -> // 마지막 하나 제외
             assertTrue(suggestion.hasSuggestion(), "Should have suggestion for: ${suggestion.original}")
             assertNotNull(suggestion.suggested)
         }
+    }
+    
+    @Test
+    fun `should handle transportation planning scenario`() {
+        // 교통 계획 시나리오
+        val distances = listOf("150km", "20mi", "50000m")
+        val speeds = listOf("60km/h", "35mph", "15m/s")
+        
+        // 모든 거리를 km로, 모든 속도를 km/h로 변환
+        val kmDistances = ECU.Batch.convertLengths(distances, "km")
+        val kmhSpeeds = ECU.Batch.convertSpeeds(speeds, "km/h")
+        
+        assertEquals(150.0, kmDistances[0].value, 0.01)
+        assertEquals(32.19, kmDistances[1].value, 0.01) // 20mi ≈ 32.19km
+        assertEquals(50.0, kmDistances[2].value, 0.01)  // 50000m = 50km
+        
+        assertEquals(60.0, kmhSpeeds[0].value, 0.01)
+        assertEquals(56.33, kmhSpeeds[1].value, 0.01)   // 35mph ≈ 56.33km/h
+        assertEquals(54.0, kmhSpeeds[2].value, 0.01)    // 15m/s = 54km/h
+        
+        // 여행 시간 계산 (첫 번째 구간)
+        val travelTime = kmDistances[0].kilometers / kmhSpeeds[0].kilometersPerHour
+        assertEquals(2.5, travelTime, 0.01) // 150km / 60km/h = 2.5시간
+    }
+    
+    @Test
+    fun `should handle aviation calculation scenario`() {
+        // 항공 계산 시나리오
+        val aircraftSpeed = ECU.speed("450kn")  // 일반적인 항공기 순항 속도
+        val windSpeed = ECU.speed("25mph")       // 바람 속도
+        val altitude = ECU.length("35000ft")     // 순항 고도
+        
+        // 속도를 같은 단위로 변환
+        val windInKnots = windSpeed.to("kn")
+        
+        // 마하 수 계산
+        val machNumber = aircraftSpeed.mach
+        assertTrue(machNumber < 1.0) // 아음속
+        assertEquals(0.69, machNumber, 0.01)
+        
+        // 고도를 미터로 변환
+        val altitudeInM = altitude.to("m")
+        assertEquals(10668.0, altitudeInM.value, 1.0)
+        
+        // 속도 카테고리 확인
+        assertEquals(SpeedCategory.VERY_FAST, aircraftSpeed.getSpeedCategory())
+        assertEquals(SpeedCategory.MODERATE, windSpeed.getSpeedCategory())
+    }
+    
+    @Test
+    fun `should handle automotive engineering scenario`() {
+        // 자동차 공학 시나리오
+        val carSpeed = ECU.speed("120km/h")
+        val carMass = ECU.weight("1500kg")
+        val brakingDistance = ECU.length("50m")
+        
+        // 운동 에너지 계산
+        val kineticEnergy = carSpeed.kineticEnergy(carMass.kilograms)
+        assertEquals(694444.44, kineticEnergy, 1.0) // KE = 0.5 * 1500 * (33.33)²
+        
+        // 제동 시간 계산 (단순화된 모델)
+        val brakingTime = carSpeed.timeForDistance(brakingDistance.meters)
+        assertEquals(1.5, brakingTime, 0.01) // 50m / 33.33m/s = 1.5초
+        
+        // 다른 단위로 속도 표시
+        val speedInMph = carSpeed.to("mph")
+        assertEquals(74.56, speedInMph.value, 0.01)
     }
     
     @Test
@@ -145,17 +214,27 @@ class ECUIntegrationTest {
         val weightUnits = ECU.Info.getSupportedWeightUnits()
         val volumeUnits = ECU.Info.getSupportedVolumeUnits()
         val areaUnits = ECU.Info.getSupportedAreaUnits()
+        val speedUnits = ECU.Info.getSupportedSpeedUnits()
         
         assertTrue(lengthUnits.isNotEmpty())
         assertTrue(weightUnits.isNotEmpty())
         assertTrue(volumeUnits.isNotEmpty())
         assertTrue(areaUnits.isNotEmpty())
+        assertTrue(speedUnits.isNotEmpty())
         
         // 기본 단위들이 포함되어 있는지 확인
         assertTrue("m" in lengthUnits)
         assertTrue("kg" in weightUnits)
         assertTrue("l" in volumeUnits)
         assertTrue("m²" in areaUnits)
+        assertTrue("m/s" in speedUnits)
+        
+        // 속도 단위 추가 확인
+        assertTrue("km/h" in speedUnits)
+        assertTrue("mph" in speedUnits)
+        assertTrue("kn" in speedUnits)
+        assertTrue("ft/s" in speedUnits)
+        assertTrue("Ma" in speedUnits)
     }
     
     @Test

@@ -50,6 +50,13 @@ object ECU {
     }
     
     /**
+     * 속도 단위 변환을 위한 진입점
+     */
+    fun speed(input: String): Speed {
+        return Speed.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -95,6 +102,13 @@ object ECU {
             try {
                 val pressure = pressure(input)
                 return suggestBetterPressureUnit(pressure)
+            } catch (e: Exception) {
+                // 다른 단위 타입 시도
+            }
+            
+            try {
+                val speed = speed(input)
+                return suggestBetterSpeedUnit(speed)
             } catch (e: Exception) {
                 // 모든 타입 실패
             }
@@ -261,6 +275,44 @@ object ECU {
                 else -> UnitSuggestion(pressure.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterSpeedUnit(speed: Speed): UnitSuggestion {
+            val ms = speed.metersPerSecond
+            
+            return when {
+                ms < 0.5 -> {
+                    UnitSuggestion(
+                        original = speed.toString(),
+                        suggested = speed.to("km/h").format(),
+                        reason = "Consider using km/h for slow speeds"
+                    )
+                }
+                ms in 0.5..50.0 -> {
+                    UnitSuggestion(
+                        original = speed.toString(),
+                        suggested = speed.to("m/s").format(),
+                        reason = "m/s is appropriate for moderate speeds"
+                    )
+                }
+                ms > 100 -> {
+                    val mach = speed.mach
+                    if (mach > 0.8) {
+                        UnitSuggestion(
+                            original = speed.toString(),
+                            suggested = speed.to("Ma").format(),
+                            reason = "Consider using Mach number for high speeds"
+                        )
+                    } else {
+                        UnitSuggestion(
+                            original = speed.toString(),
+                            suggested = speed.to("km/h").format(),
+                            reason = "Consider using km/h for this speed range"
+                        )
+                    }
+                }
+                else -> UnitSuggestion(speed.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -320,6 +372,15 @@ object ECU {
                 pressure(input).to(targetUnit)
             }
         }
+        
+        /**
+         * 여러 속도를 동일한 단위로 변환
+         */
+        fun convertSpeeds(inputs: List<String>, targetUnit: String): List<Speed> {
+            return inputs.map { input ->
+                speed(input).to(targetUnit)
+            }
+        }
     }
     
     /**
@@ -366,6 +427,13 @@ object ECU {
          */
         fun getSupportedPressureUnits(): Set<String> {
             return UnitRegistry.getUnitsByCategory(UnitCategory.PRESSURE)
+        }
+        
+        /**
+         * 지원되는 모든 속도 단위 조회
+         */
+        fun getSupportedSpeedUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.SPEED)
         }
         
         /**
