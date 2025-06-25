@@ -110,15 +110,15 @@ class ECUIntegrationTest {
         // 다양한 카테고리에서 스마트 제안 테스트
         val suggestions = listOf(
             ECU.Auto.suggest("0.001kg"),    // → g
-            ECU.Auto.suggest("0.0005l"),    // → ml (더 작은 값으로 수정)
+            ECU.Auto.suggest("0.0005l"),    // → ml
             ECU.Auto.suggest("250K"),       // → °C
             ECU.Auto.suggest("0.005m²"),    // → cm²
             ECU.Auto.suggest("0.1m"),       // → cm
-            ECU.Auto.suggest("0.05m/s"),    // → km/h (느린 속도)
+            ECU.Auto.suggest("0.005m/s"),   // → mm/s (매우 느린 속도)
             ECU.Auto.suggest("400m/s")      // → Ma (초음속)
         )
         
-        suggestions.take(6).forEach { suggestion -> // 마지막 하나 제외
+        suggestions.forEach { suggestion ->
             assertTrue(suggestion.hasSuggestion(), "Should have suggestion for: ${suggestion.original}")
             assertNotNull(suggestion.suggested)
         }
@@ -160,7 +160,8 @@ class ECUIntegrationTest {
         // 마하 수 계산
         val machNumber = aircraftSpeed.mach
         assertTrue(machNumber < 1.0) // 아음속
-        assertEquals(0.69, machNumber, 0.01)
+        // 450 knots = 231.499... m/s, 231.499.../343 = 0.6749...
+        assertEquals(0.6749265306122448, machNumber, 0.01)
         
         // 고도를 미터로 변환
         val altitudeInM = altitude.to("m")
@@ -180,7 +181,7 @@ class ECUIntegrationTest {
         
         // 운동 에너지 계산
         val kineticEnergy = carSpeed.kineticEnergy(carMass.kilograms)
-        assertEquals(694444.44, kineticEnergy, 1.0) // KE = 0.5 * 1500 * (33.33)²
+        assertEquals( 833333.66, kineticEnergy, 1.0) // KE = 0.5 * 1500 * (33.33)²
         
         // 제동 시간 계산 (단순화된 모델)
         val brakingTime = carSpeed.timeForDistance(brakingDistance.meters)

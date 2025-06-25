@@ -123,11 +123,18 @@ object ECU {
                 meters < 0.001 -> {
                     UnitSuggestion(
                         original = length.toString(),
-                        suggested = Length.of(meters * 1_000_000, "mm").format(),
-                        reason = "Consider using millimeters for very small lengths"
+                        suggested = Length.of(meters * 1_000_000, "μm").format(),
+                        reason = "Consider using micrometers for very small lengths"
                     )
                 }
                 meters < 0.01 -> {
+                    UnitSuggestion(
+                        original = length.toString(),
+                        suggested = Length.of(meters * 1000, "mm").format(),
+                        reason = "Consider using millimeters for small lengths"
+                    )
+                }
+                meters < 1.0 -> {
                     UnitSuggestion(
                         original = length.toString(),
                         suggested = Length.of(meters * 100, "cm").format(),
@@ -280,18 +287,25 @@ object ECU {
             val ms = speed.metersPerSecond
             
             return when {
-                ms < 0.5 -> {
+                ms < 0.01 -> {
+                    UnitSuggestion(
+                        original = speed.toString(),
+                        suggested = speed.to("mm/s").format(),
+                        reason = "Consider using mm/s for extremely slow speeds"
+                    )
+                }
+                ms < 0.1 -> {
+                    UnitSuggestion(
+                        original = speed.toString(),
+                        suggested = speed.to("cm/s").format(),
+                        reason = "Consider using cm/s for very slow speeds"
+                    )
+                }
+                ms in 0.1..50.0 -> {
                     UnitSuggestion(
                         original = speed.toString(),
                         suggested = speed.to("km/h").format(),
-                        reason = "Consider using km/h for slow speeds"
-                    )
-                }
-                ms in 0.5..50.0 -> {
-                    UnitSuggestion(
-                        original = speed.toString(),
-                        suggested = speed.to("m/s").format(),
-                        reason = "m/s is appropriate for moderate speeds"
+                        reason = "Consider using km/h for moderate speeds"
                     )
                 }
                 ms > 100 -> {

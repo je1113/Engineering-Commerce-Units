@@ -1,5 +1,11 @@
 package io.ecu
 
+import kotlin.math.pow
+import kotlin.math.round
+import kotlin.math.floor
+import kotlin.math.ceil
+import kotlin.math.abs
+
 /**
  * 속도 단위를 나타내는 클래스
  * 
@@ -302,10 +308,35 @@ class Speed private constructor(
      * 정밀도가 적용된 포맷팅
      */
     override fun format(locale: String?): String {
+        val currentValue = value  // 현재 단위의 값을 가져옴
         val formattedValue = if (precision >= 0) {
-            String.format("%.${precision}f", value)
+            val factor = 10.0.pow(precision.toDouble())
+            val rounded = when (roundingMode) {
+                RoundingMode.HALF_UP -> round(currentValue * factor) / factor
+                RoundingMode.HALF_DOWN -> {
+                    val scaled = currentValue * factor
+                    val floored = floor(scaled)
+                    val decimal = scaled - floored
+                    if (decimal > 0.5) {
+                        ceil(scaled) / factor
+                    } else {
+                        floored / factor
+                    }
+                }
+                RoundingMode.HALF_EVEN -> {
+                    val scaled = currentValue * factor
+                    val rounded = round(scaled)
+                    if (abs(scaled - rounded) == 0.5) {
+                        if (rounded.toLong() % 2L == 0L) rounded / factor
+                        else floor(scaled) / factor
+                    } else rounded / factor
+                }
+                RoundingMode.UP -> ceil(currentValue * factor) / factor
+                RoundingMode.DOWN -> floor(currentValue * factor) / factor
+            }
+            String.format("%.${precision}f", rounded)
         } else {
-            value.toString()
+            currentValue.toString()
         }
         
         return "$formattedValue $symbol"
@@ -324,14 +355,14 @@ class Speed private constructor(
             // 느린 속도 (도시 주행): km/h
             mps < 50.0 -> to("km/h")
             
-            // 빠른 속도 (항공기): mph 또는 knots
-            mps < 200.0 -> to("mph")
+            // 빠른 속도 (고속도로): mph
+            mps in 50.0..150.0 -> to("mph")
             
             // 초고속 (제트기): 마하
             mps >= 343.0 -> to("Ma")
             
             // 기본: m/s
-            else -> to("m/s")
+            else -> this  // 현재 단위 유지
         }
     }
 }

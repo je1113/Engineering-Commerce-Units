@@ -141,7 +141,7 @@ object UnitRegistry {
         
         // 속도 단위 (기본: m/s)
         register(UnitDefinition("m/s", "meters per second", UnitCategory.SPEED, 1.0, true, setOf("mps", "meter per second", "meters per second")))
-        register(UnitDefinition("km/h", "kilometers per hour", UnitCategory.SPEED, 0.277778, aliases = setOf("kmh", "kph", "kilometer per hour", "kilometers per hour")))
+        register(UnitDefinition("km/h", "kilometers per hour", UnitCategory.SPEED, 1.0/3.6, aliases = setOf("kmh", "kph", "kilometer per hour", "kilometers per hour")))
         register(UnitDefinition("mph", "miles per hour", UnitCategory.SPEED, 0.44704, aliases = setOf("mi/h", "mile per hour", "miles per hour")))
         register(UnitDefinition("kn", "knot", UnitCategory.SPEED, 0.514444, aliases = setOf("knot", "knots", "kt", "nautical mile per hour")))
         register(UnitDefinition("ft/s", "feet per second", UnitCategory.SPEED, 0.3048, aliases = setOf("fps", "foot per second", "feet per second")))
