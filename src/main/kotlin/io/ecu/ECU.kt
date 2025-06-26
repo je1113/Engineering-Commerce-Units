@@ -57,6 +57,13 @@ object ECU {
     }
     
     /**
+     * 에너지 단위 변환을 위한 진입점
+     */
+    fun energy(input: String): Energy {
+        return Energy.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -109,6 +116,13 @@ object ECU {
             try {
                 val speed = speed(input)
                 return suggestBetterSpeedUnit(speed)
+            } catch (e: Exception) {
+                // 다른 단위 타입 시도
+            }
+            
+            try {
+                val energy = energy(input)
+                return suggestBetterEnergyUnit(energy)
             } catch (e: Exception) {
                 // 모든 타입 실패
             }
@@ -327,6 +341,69 @@ object ECU {
                 else -> UnitSuggestion(speed.toString(), null, "Current unit is appropriate")
             }
         }
+        
+        private fun suggestBetterEnergyUnit(energy: Energy): UnitSuggestion {
+            val j = energy.joules
+            
+            return when {
+                j < 1e-16 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("eV").format(),
+                        reason = "Consider using electron volts for atomic-scale energies"
+                    )
+                }
+                j < 1 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("mJ").format(),
+                        reason = "Consider using millijoules for small energies"
+                    )
+                }
+                j < 1000 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("J").format(),
+                        reason = "Consider using joules for moderate energies"
+                    )
+                }
+                j < 1e6 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("kJ").format(),
+                        reason = "Consider using kilojoules for larger energies"
+                    )
+                }
+                j < 3.6e7 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("kWh").format(),
+                        reason = "Consider using kilowatt-hours for electrical energy"
+                    )
+                }
+                j < 1e9 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("MJ").format(),
+                        reason = "Consider using megajoules for very large energies"
+                    )
+                }
+                j < 1e12 -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("GJ").format(),
+                        reason = "Consider using gigajoules for huge energies"
+                    )
+                }
+                else -> {
+                    UnitSuggestion(
+                        original = energy.toString(),
+                        suggested = energy.to("tTNT").format(),
+                        reason = "Consider using TNT equivalent for explosive energies"
+                    )
+                }
+            }
+        }
     }
     
     /**
@@ -395,6 +472,15 @@ object ECU {
                 speed(input).to(targetUnit)
             }
         }
+        
+        /**
+         * 여러 에너지를 동일한 단위로 변환
+         */
+        fun convertEnergies(inputs: List<String>, targetUnit: String): List<Energy> {
+            return inputs.map { input ->
+                energy(input).to(targetUnit)
+            }
+        }
     }
     
     /**
@@ -448,6 +534,13 @@ object ECU {
          */
         fun getSupportedSpeedUnits(): Set<String> {
             return UnitRegistry.getUnitsByCategory(UnitCategory.SPEED)
+        }
+        
+        /**
+         * 지원되는 모든 에너지 단위 조회
+         */
+        fun getSupportedEnergyUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.ENERGY)
         }
         
         /**

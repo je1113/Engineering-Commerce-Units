@@ -146,7 +146,26 @@ object UnitRegistry {
         register(UnitDefinition("kn", "knot", UnitCategory.SPEED, 0.514444, aliases = setOf("knot", "knots", "kt", "nautical mile per hour")))
         register(UnitDefinition("ft/s", "feet per second", UnitCategory.SPEED, 0.3048, aliases = setOf("fps", "foot per second", "feet per second")))
         register(UnitDefinition("cm/s", "centimeters per second", UnitCategory.SPEED, 0.01, aliases = setOf("centimeter per second", "centimeters per second")))
+        register(UnitDefinition("mm/s", "millimeters per second", UnitCategory.SPEED, 0.001, aliases = setOf("millimeter per second", "millimeters per second")))
         register(UnitDefinition("Ma", "Mach", UnitCategory.SPEED, 343.0, aliases = setOf("mach", "Mach number")))
+        
+        // 에너지 단위 (기본: 줄)
+        register(UnitDefinition("J", "joule", UnitCategory.ENERGY, 1.0, true, setOf("joule", "joules")))
+        register(UnitDefinition("kJ", "kilojoule", UnitCategory.ENERGY, 1000.0, aliases = setOf("kilojoule", "kilojoules")))
+        register(UnitDefinition("MJ", "megajoule", UnitCategory.ENERGY, 1e6, aliases = setOf("megajoule", "megajoules")))
+        register(UnitDefinition("GJ", "gigajoule", UnitCategory.ENERGY, 1e9, aliases = setOf("gigajoule", "gigajoules")))
+        register(UnitDefinition("mJ", "millijoule", UnitCategory.ENERGY, 0.001, aliases = setOf("millijoule", "millijoules")))
+        register(UnitDefinition("Wh", "watt hour", UnitCategory.ENERGY, 3600.0, aliases = setOf("watt hour", "watt hours", "watthour", "watthours")))
+        register(UnitDefinition("kWh", "kilowatt hour", UnitCategory.ENERGY, 3.6e6, aliases = setOf("kilowatt hour", "kilowatt hours", "kilowatthour", "kilowatthours")))
+        register(UnitDefinition("MWh", "megawatt hour", UnitCategory.ENERGY, 3.6e9, aliases = setOf("megawatt hour", "megawatt hours", "megawatthour", "megawatthours")))
+        register(UnitDefinition("cal", "calorie", UnitCategory.ENERGY, 4.184, aliases = setOf("calorie", "calories", "gram calorie")))
+        register(UnitDefinition("kcal", "kilocalorie", UnitCategory.ENERGY, 4184.0, aliases = setOf("kilocalorie", "kilocalories", "food calorie")))
+        register(UnitDefinition("BTU", "British thermal unit", UnitCategory.ENERGY, 1055.06, aliases = setOf("btu", "British thermal unit", "British thermal units")))
+        register(UnitDefinition("eV", "electron volt", UnitCategory.ENERGY, 1.602176634e-19, aliases = setOf("electronvolt", "electron volt", "electron volts")))
+        register(UnitDefinition("keV", "kiloelectron volt", UnitCategory.ENERGY, 1.602176634e-16, aliases = setOf("kiloelectronvolt", "kiloelectron volt", "kiloelectron volts")))
+        register(UnitDefinition("MeV", "megaelectron volt", UnitCategory.ENERGY, 1.602176634e-13, aliases = setOf("megaelectronvolt", "megaelectron volt", "megaelectron volts")))
+        register(UnitDefinition("ft⋅lbf", "foot-pound", UnitCategory.ENERGY, 1.35582, aliases = setOf("ft-lbf", "ft-lb", "foot pound", "foot pounds")))
+        register(UnitDefinition("tTNT", "ton of TNT", UnitCategory.ENERGY, 4.184e9, aliases = setOf("ton TNT", "tons TNT", "ton of TNT", "tons of TNT")))
     }
     
     /**
