@@ -292,4 +292,156 @@ class ECUIntegrationTest {
         assertTrue(length > ECU.length("3m"))
         assertTrue(weight > ECU.weight("2kg"))
     }
+    
+    @Test
+    fun `should handle automotive torque scenario`() {
+        // 자동차 토크 시나리오
+        val engineTorque = ECU.torque("420 ft-lb") // 고성능 엔진 토크
+        val wheelDiameter = ECU.length("0.7m") // 타이어 직경
+        
+        // SI 단위로 변환
+        val torqueNm = engineTorque.to("Nm")
+        assertEquals(569.44, torqueNm.value, 0.01)
+        
+        // 바퀴에서의 힘 계산 (토크 / 반지름)
+        val wheelForce = engineTorque.forceAtDistance(wheelDiameter.meters / 2)
+        assertEquals(1626.98, wheelForce, 0.02) // N
+        
+        // 5000 RPM에서의 출력
+        val powerWatts = engineTorque.powerAtRPM(5000.0)
+        val powerHP = powerWatts / 745.7 // Convert to horsepower
+        assertEquals(400.0, powerHP, 1.0) // ~400 HP
+        
+        // 토크 스케일 확인
+        assertEquals(TorqueScale.AUTOMOTIVE, engineTorque.getTorqueScale())
+        
+        // 자동차 형식으로 표시
+        assertEquals("420.0 ft-lb", engineTorque.toAutomotiveFormat())
+    }
+    
+    @Test
+    fun `should handle industrial torque wrench calibration`() {
+        // 산업용 토크 렌치 교정 시나리오
+        val targetTorques = listOf("50 Nm", "100 ft-lb", "500 in-lb", "10 kgf⋅m")
+        
+        // 모든 토크를 Nm로 변환
+        val nmTorques = ECU.Batch.convertTorques(targetTorques, "Nm")
+        
+        assertEquals(50.0, nmTorques[0].value, 0.01)
+        assertEquals(135.58, nmTorques[1].value, 0.01)
+        assertEquals(56.49, nmTorques[2].value, 0.01)
+        assertEquals(98.07, nmTorques[3].value, 0.01)
+        
+        // 정밀도 설정
+        val preciseTorque = nmTorques[1].withPrecision(1)
+        assertEquals("135.6 Nm", preciseTorque.format())
+        
+        // 엔지니어링 형식 표시
+        nmTorques.forEach { torque ->
+            val formatted = torque.toEngineeringFormat()
+            assertTrue(formatted.contains("N⋅m"))
+        }
+    }
+    
+    @Test
+    fun `should handle electric motor torque and power calculations`() {
+        // 전기 모터 토크 및 전력 계산
+        val motorTorque = ECU.torque("2.5 Nm") // 서보 모터
+        val motorSpeed = ECU.speed("3000 rpm") // RPM으로 표현된 속도
+        
+        // 3000 RPM에서의 전력 계산
+        val powerWatts = motorTorque.powerAtRPM(3000.0)
+        assertEquals(785.4, powerWatts, 0.1) // ~785W
+        
+        // 작은 토크는 다른 단위로 표시
+        val ozfIn = motorTorque.to("ozf⋅in")
+        assertEquals(354.02, ozfIn.value, 0.01)
+        
+        // 스마트 단위 제안
+        val suggestion = ECU.Auto.suggest("2.5 Nm")
+        assertTrue(suggestion.hasSuggestion())
+    }
+    
+    @Test
+    fun `should handle torque-based work calculations`() {
+        // 토크 기반 일 계산
+        val drillTorque = ECU.torque("50 Nm")
+        val rotations = 10.0 // 10 회전
+        val angleRadians = rotations * 2 * Math.PI
+        
+        // 수행된 일 계산
+        val workJoules = drillTorque.workOverAngle(angleRadians)
+        assertEquals(3141.59, workJoules, 0.01) // ~3.14 kJ
+        
+        // 에너지로 변환
+        val energy = Energy.joules(workJoules)
+        val kJ = energy.to("kJ")
+        assertEquals(3.14, kJ.value, 0.01)
+    }
+    
+    @Test
+    fun `should handle precision torque applications`() {
+        // 정밀 토크 응용 (시계, 전자기기 등)
+        val watchSpring = ECU.torque("0.05 mNm")
+        val electronicScrew = ECU.torque("0.5 ozf⋅in")
+        
+        // 매우 작은 토크 변환
+        val watchInNm = watchSpring.to("Nm")
+        assertEquals(0.00005, watchInNm.value, 0.000001)
+        
+        // 전자기기 나사 토크
+        val screwInNm = electronicScrew.to("Nm")
+        assertEquals(0.00353, screwInNm.value, 0.00001)
+        
+        // 토크 스케일 확인
+        assertEquals(TorqueScale.MICRO, watchSpring.getTorqueScale())
+        assertEquals(TorqueScale.MICRO, electronicScrew.getTorqueScale())
+    }
+    
+    @Test
+    fun `should validate all torque units are accessible`() {
+        // 모든 토크 단위 접근 가능 확인
+        val torqueUnits = ECU.Info.getSupportedTorqueUnits()
+        
+        assertTrue(torqueUnits.isNotEmpty())
+        assertTrue("Nm" in torqueUnits)
+        assertTrue("ft-lb" in torqueUnits)
+        assertTrue("in-lb" in torqueUnits)
+        assertTrue("kNm" in torqueUnits)
+        assertTrue("mNm" in torqueUnits)
+        assertTrue("kgf⋅m" in torqueUnits)
+        assertTrue("ozf⋅in" in torqueUnits)
+        assertTrue("dNm" in torqueUnits)
+    }
+    
+    @Test
+    fun `should handle energy unit validation`() {
+        // 에너지 단위 접근 가능 확인
+        val energyUnits = ECU.Info.getSupportedEnergyUnits()
+        
+        assertTrue(energyUnits.isNotEmpty())
+        assertTrue("J" in energyUnits)
+        assertTrue("kWh" in energyUnits)
+        assertTrue("cal" in energyUnits)
+        assertTrue("BTU" in energyUnits)
+        assertTrue("eV" in energyUnits)
+    }
+    
+    @Test
+    fun `should handle energy consumption scenario`() {
+        // 에너지 소비 시나리오
+        val dailyUsage = ECU.energy("25 kWh") // 가정 일일 전력 사용량
+        val gasHeating = ECU.energy("100000 BTU") // 가스 난방
+        
+        // 모두 kWh로 변환
+        val gasInKwh = gasHeating.to("kWh")
+        val totalKwh = dailyUsage.kilowattHours + gasInKwh.kilowattHours
+        
+        assertEquals(29.31, gasInKwh.value, 0.01)
+        assertEquals(54.31, totalKwh, 0.01)
+        
+        // 월간 비용 계산 (kWh당 $0.12 가정)
+        val monthlyCost = totalKwh * 30 * 0.12
+        assertEquals(195.516, monthlyCost, 0.02)
+    }
 }

@@ -64,6 +64,13 @@ object ECU {
     }
     
     /**
+     * 토크 단위 변환을 위한 진입점
+     */
+    fun torque(input: String): Torque {
+        return Torque.parse(input)
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {
@@ -123,6 +130,13 @@ object ECU {
             try {
                 val energy = energy(input)
                 return suggestBetterEnergyUnit(energy)
+            } catch (e: Exception) {
+                // 다른 단위 타입 시도
+            }
+            
+            try {
+                val torque = torque(input)
+                return suggestBetterTorqueUnit(torque)
             } catch (e: Exception) {
                 // 모든 타입 실패
             }
@@ -404,6 +418,56 @@ object ECU {
                 }
             }
         }
+        
+        private fun suggestBetterTorqueUnit(torque: Torque): UnitSuggestion {
+            val nm = torque.newtonMeters
+            
+            return when {
+                nm < 0.001 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("mNm").format(),
+                        reason = "Consider using millinewton-meters for very small torques"
+                    )
+                }
+                nm < 0.1 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("ozf⋅in").format(),
+                        reason = "Consider using ounce-force inches for small torques"
+                    )
+                }
+                nm < 1.0 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("in-lb").format(),
+                        reason = "Consider using inch-pounds for small torques"
+                    )
+                }
+                nm in 1.0..100.0 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("Nm").format(),
+                        reason = "Newton-meters is appropriate for this range"
+                    )
+                }
+                nm in 100.0..1000.0 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("ft-lb").format(),
+                        reason = "Consider using foot-pounds for automotive torques"
+                    )
+                }
+                nm > 1000.0 -> {
+                    UnitSuggestion(
+                        original = torque.toString(),
+                        suggested = torque.to("kNm").format(),
+                        reason = "Consider using kilonewton-meters for large torques"
+                    )
+                }
+                else -> UnitSuggestion(torque.toString(), null, "Current unit is appropriate")
+            }
+        }
     }
     
     /**
@@ -481,6 +545,15 @@ object ECU {
                 energy(input).to(targetUnit)
             }
         }
+        
+        /**
+         * 여러 토크를 동일한 단위로 변환
+         */
+        fun convertTorques(inputs: List<String>, targetUnit: String): List<Torque> {
+            return inputs.map { input ->
+                torque(input).to(targetUnit)
+            }
+        }
     }
     
     /**
@@ -541,6 +614,13 @@ object ECU {
          */
         fun getSupportedEnergyUnits(): Set<String> {
             return UnitRegistry.getUnitsByCategory(UnitCategory.ENERGY)
+        }
+        
+        /**
+         * 지원되는 모든 토크 단위 조회
+         */
+        fun getSupportedTorqueUnits(): Set<String> {
+            return UnitRegistry.getUnitsByCategory(UnitCategory.TORQUE)
         }
         
         /**

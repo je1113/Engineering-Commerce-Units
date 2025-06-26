@@ -199,6 +199,13 @@ class Speed private constructor(
         get() = baseValue * 100
     
     /**
+     * RPM(분당 회전수) 단위로 값 반환
+     * 1 rpm = 2π/60 rad/s = 0.10471975511966 rad/s
+     */
+    val rpm: Double
+        get() = baseValue / 0.10471975511966
+    
+    /**
      * 속도 덧셈 (가속/감속)
      */
     operator fun plus(other: Speed): Speed {

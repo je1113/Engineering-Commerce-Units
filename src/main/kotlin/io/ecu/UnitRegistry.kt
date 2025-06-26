@@ -148,6 +148,7 @@ object UnitRegistry {
         register(UnitDefinition("cm/s", "centimeters per second", UnitCategory.SPEED, 0.01, aliases = setOf("centimeter per second", "centimeters per second")))
         register(UnitDefinition("mm/s", "millimeters per second", UnitCategory.SPEED, 0.001, aliases = setOf("millimeter per second", "millimeters per second")))
         register(UnitDefinition("Ma", "Mach", UnitCategory.SPEED, 343.0, aliases = setOf("mach", "Mach number")))
+        register(UnitDefinition("rpm", "revolutions per minute", UnitCategory.SPEED, 0.10471975511966, aliases = setOf("RPM", "rev/min")))
         
         // 에너지 단위 (기본: 줄)
         register(UnitDefinition("J", "joule", UnitCategory.ENERGY, 1.0, true, setOf("joule", "joules")))
@@ -166,6 +167,16 @@ object UnitRegistry {
         register(UnitDefinition("MeV", "megaelectron volt", UnitCategory.ENERGY, 1.602176634e-13, aliases = setOf("megaelectronvolt", "megaelectron volt", "megaelectron volts")))
         register(UnitDefinition("ft⋅lbf", "foot-pound", UnitCategory.ENERGY, 1.35582, aliases = setOf("ft-lbf", "ft-lb", "foot pound", "foot pounds")))
         register(UnitDefinition("tTNT", "ton of TNT", UnitCategory.ENERGY, 4.184e9, aliases = setOf("ton TNT", "tons TNT", "ton of TNT", "tons of TNT")))
+        
+        // 토크 단위 (기본: Newton-meter)
+        register(UnitDefinition("Nm", "Newton-meter", UnitCategory.TORQUE, 1.0, true, setOf("N⋅m", "N·m", "newton meter", "newton meters")))
+        register(UnitDefinition("kNm", "kilonewton-meter", UnitCategory.TORQUE, 1000.0, aliases = setOf("kN⋅m", "kN·m", "kilonewton meter", "kilonewton meters")))
+        register(UnitDefinition("mNm", "millinewton-meter", UnitCategory.TORQUE, 0.001, aliases = setOf("mN⋅m", "mN·m", "millinewton meter", "millinewton meters")))
+        register(UnitDefinition("ft-lb", "foot-pound", UnitCategory.TORQUE, 1.35581795, aliases = setOf("ft⋅lb", "ft·lb", "ft-lbf", "foot pound", "foot pounds")))
+        register(UnitDefinition("in-lb", "inch-pound", UnitCategory.TORQUE, 0.1129848, aliases = setOf("in⋅lb", "in·lb", "in-lbf", "inch pound", "inch pounds")))
+        register(UnitDefinition("kgf⋅m", "kilogram-force meter", UnitCategory.TORQUE, 9.80665, aliases = setOf("kgf·m", "kgf-m", "kilogram force meter")))
+        register(UnitDefinition("ozf⋅in", "ounce-force inch", UnitCategory.TORQUE, 0.00706155, aliases = setOf("ozf·in", "ozf-in", "ounce force inch")))
+        register(UnitDefinition("dNm", "decinewton-meter", UnitCategory.TORQUE, 0.1, aliases = setOf("dN⋅m", "dN·m", "decinewton meter")))
     }
     
     /**

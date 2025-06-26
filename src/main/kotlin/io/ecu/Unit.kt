@@ -157,7 +157,16 @@ abstract class BaseUnit<T : BaseUnit<T>>(
         val factor = 10.0.pow(digits)
         return when (roundingMode) {
             RoundingMode.HALF_UP -> round(value * factor) / factor
-            RoundingMode.HALF_DOWN -> floor(value * factor + 0.5) / factor
+            RoundingMode.HALF_DOWN -> {
+                val scaled = value * factor
+                val truncated = kotlin.math.truncate(scaled)
+                val fraction = scaled - truncated
+                if (fraction > 0.5) {
+                    (truncated + 1) / factor
+                } else {
+                    truncated / factor
+                }
+            }
             RoundingMode.HALF_EVEN -> {
                 val scaled = value * factor
                 val rounded = round(scaled)
