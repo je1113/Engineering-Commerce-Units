@@ -71,6 +71,29 @@ object ECU {
     }
     
     /**
+     * 수량 단위 변환을 위한 진입점
+     */
+    fun quantity(input: String): Quantity {
+        return Quantity.parse(input)
+    }
+    
+    /**
+     * 제품별 수량 단위 변환을 위한 진입점
+     * @param input 입력 문자열
+     * @param config 제품별 단위 설정
+     */
+    fun quantity(input: String, config: ProductUnitConfiguration): Quantity {
+        val qty = Quantity.parse(input)
+        // 설정에 라운딩 프로파일이 있으면 적용
+        val unit = input.trim().split(Regex("\\s+")).lastOrNull() ?: ""
+        config.getRoundingProfile(unit)?.let { profile ->
+            val rounded = profile.applyRounding(qty.pieces)
+            return Quantity.pieces(rounded)
+        }
+        return qty
+    }
+    
+    /**
      * 단위 변환 검증 및 제안 시스템
      */
     object Auto {

@@ -81,7 +81,8 @@ enum class UnitCategory {
     FLOW,
     POWER,
     TORQUE,
-    FREQUENCY
+    FREQUENCY,
+    QUANTITY
 }
 
 /**
