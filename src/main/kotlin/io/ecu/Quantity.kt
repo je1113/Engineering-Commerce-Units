@@ -112,6 +112,15 @@ class Quantity private constructor(
         )
     }
     
+    /**
+     * 최적 단위 제안
+     */
+    fun suggestOptimalUnit(): String {
+        val conversionService = ConversionService()
+        val optimal = conversionService.suggestOptimalUnit(this)
+        return optimal.recommended?.format() ?: this.toString()
+    }
+    
     companion object {
         init {
             // 기본 수량 단위 등록
