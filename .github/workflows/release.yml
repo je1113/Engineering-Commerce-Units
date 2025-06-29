@@ -131,11 +131,8 @@ jobs:
     
     - name: Upload Release Assets
       if: startsWith(github.ref, 'refs/tags/')
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ecu-core/build/libs/ecu-core-${{ env.VERSION }}.jar
-        asset_name: ecu-core-${{ env.VERSION }}.jar
-        asset_content_type: application/java-archive
+        files: ecu-core/build/libs/ecu-core-${{ env.VERSION }}.jar
