@@ -98,7 +98,7 @@ val optimal = service.suggestOptimalPackaging("PROD-001", qty)
 ## 📖 다음 단계
 
 - 📚 [전체 문서](QUANTITY_UNITS.md)
-- 💼 [실전 예제](../src/main/kotlin/io/ecu/examples/QuantityUsageGuide.kt)
+- 💼 [실전 예제](../ecu-commerce/src/main/kotlin/io/ecu/examples/QuantityUsageGuide.kt)
 - 🧪 [테스트 코드](src/test/kotlin/io/ecu/QuantityTest.kt)
 
 ## 🤔 FAQ
