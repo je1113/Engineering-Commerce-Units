@@ -1,5 +1,6 @@
 name: Release to Maven Central
-
+permissions:
+  contents: write
 on:
   push:
     tags:
