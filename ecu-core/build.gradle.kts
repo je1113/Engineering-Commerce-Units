@@ -5,7 +5,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
-    id("com.gradleup.nmcp") version "0.0.4"  // New Maven Central Portal plugin
+    id("com.gradleup.nmcp") version "0.0.8"  // New Maven Central Portal plugin
 }
 
 dependencies {
@@ -125,12 +125,4 @@ signing {
 }
 
 // New Maven Central Portal configuration
-nmcp {
-    publishAllProjectsProbablyBreakingProjectIsolation {
-        username = providers.gradleProperty("centralPortalUsername")
-            .orElse(providers.environmentVariable("CENTRAL_TOKEN"))
-        password = providers.gradleProperty("centralPortalPassword")
-            .orElse(providers.environmentVariable("CENTRAL_SECRET"))
-        publicationType = "AUTOMATIC"
-    }
-}
+nmcp {}
