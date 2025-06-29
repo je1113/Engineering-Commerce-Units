@@ -5,7 +5,6 @@ plugins {
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
-    id("com.gradleup.nmcp") version "0.0.8"  // New Maven Central Portal plugin
 }
 
 dependencies {
@@ -21,10 +20,9 @@ tasks.dokkaHtml {
             jdkVersion.set(8)
             platform.set(org.jetbrains.dokka.Platform.jvm)
             
-            // 소스 링크 설정
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(URL("https://github.com/je1113/engineering-commerce-units/tree/main/ecu-core/src/main/kotlin"))
+                remoteUrl.set(URL("https://github.com/je1113/Engineering-Commerce-Units/tree/main/ecu-core/src/main/kotlin"))
                 remoteLineSuffix.set("#L")
             }
         }
@@ -51,7 +49,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         freeCompilerArgs = listOf(
             "-Xjsr305=strict",
             "-Xjvm-default=all"
-            // "-Xexplicit-api=strict" 제거 - 너무 엄격함
         )
     }
 }
@@ -75,7 +72,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "io.github.je1113"
             artifactId = "ecu-core"
-            version = "1.0.0"
+            version = project.version.toString()
 
             from(components["java"])
             
@@ -84,7 +81,7 @@ publishing {
             
             pom {
                 name.set("ECU Core Library")
-                description.set("A lightweight, Java 8 compatible unit conversion library")
+                description.set("A lightweight, Java 8 compatible unit conversion library for length, weight, volume, and temperature conversions")
                 url.set("https://github.com/je1113/Engineering-Commerce-Units")
                 
                 licenses {
@@ -110,19 +107,29 @@ publishing {
             }
         }
     }
+    
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = if (project.version.toString().endsWith("SNAPSHOT")) {
+                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            } else {
+                uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            }
+            credentials {
+                username = System.getenv("OSSRH_USERNAME") ?: System.getenv("CENTRAL_TOKEN")
+                password = System.getenv("OSSRH_PASSWORD") ?: System.getenv("CENTRAL_SECRET")
+            }
+        }
+    }
 }
 
 signing {
-    val signingKey: String? = project.findProperty("signingInMemoryKey") as String? 
-        ?: System.getenv("GPG_SIGNING_KEY")
-    val signingPassword: String? = project.findProperty("signingInMemoryKeyPassword") as String? 
-        ?: System.getenv("GPG_SIGNING_PASSWORD")
+    val signingKey = System.getenv("GPG_SIGNING_KEY")
+    val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")
     
-    if (signingKey != null && signingPassword != null) {
+    if (!signingKey.isNullOrEmpty() && !signingPassword.isNullOrEmpty()) {
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications["maven"])
     }
 }
-
-// New Maven Central Portal configuration
-nmcp {}
