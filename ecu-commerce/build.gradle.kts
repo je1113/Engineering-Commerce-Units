@@ -15,7 +15,7 @@ tasks.jar {
         attributes(
             "Implementation-Title" to "ECU Commerce Module",
             "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "Park Young Min",
+            "Implementation-Vendor" to "Jeon Joo Eun",
             "Created-By" to "Gradle ${gradle.gradleVersion}",
             "Built-JDK" to System.getProperty("java.version"),
             "Target-JDK" to "1.8"
@@ -43,14 +43,14 @@ publishing {
                 developers {
                     developer {
                         id.set("je1113")
-                        name.set("Park Young Min")
-                        email.set("your.email@example.com")
+                        name.set("Jeon Jooeun")
+                        email.set("jje320594@gmail.com")
                     }
                 }
-                
+
                 scm {
-                    connection.set("scm:git:git://github.com/je1113/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:ssh://github.com/je1113/engineering-commerce-units.git")
+                    connection.set("scm:git:https://github.com/je1113/engineering-commerce-units.git")
+                    developerConnection.set("scm:git:git@github.com:je1113/engineering-commerce-units.git")
                     url.set("https://github.com/je1113/engineering-commerce-units")
                 }
             }

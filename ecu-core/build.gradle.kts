@@ -60,7 +60,7 @@ tasks.jar {
         attributes(
             "Implementation-Title" to "ECU Core Library",
             "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "Park Young Min",
+            "Implementation-Vendor" to "Jeon Joo Eun",
             "Created-By" to "Gradle ${gradle.gradleVersion}",
             "Built-JDK" to System.getProperty("java.version"),
             "Target-JDK" to "1.8"
@@ -71,6 +71,10 @@ tasks.jar {
 publishing {
     publications {
         create<MavenPublication>("maven") {
+            groupId = "io.github.je1113"
+            artifactId = "ecu-core"
+            version = "1.0.0"
+
             from(components["java"])
             
             artifact(dokkaJavadocJar)
@@ -90,8 +94,8 @@ publishing {
                 developers {
                     developer {
                         id.set("je1113")
-                        name.set("Park Young Min")
-                        email.set("your.email@example.com")
+                        name.set("Jeon Joo Eun")
+                        email.set("jje320594@gmail.com")
                     }
                 }
                 
