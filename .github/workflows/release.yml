@@ -89,12 +89,12 @@ jobs:
         ./gradlew :ecu-core:dokkaJavadoc
     
     - name: Publish to Maven Central
-      run: ./gradlew :ecu-core:publish
+      run: ./gradlew :ecu-core:publishAllPublicationsToCentralPortal --no-configuration-cache
       env:
-        CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
-        CENTRAL_SECRET: ${{ secrets.CENTRAL_SECRET }}
-        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-        GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
+        ORG_GRADLE_PROJECT_centralPortalUsername: ${{ secrets.CENTRAL_TOKEN }}
+        ORG_GRADLE_PROJECT_centralPortalPassword: ${{ secrets.CENTRAL_SECRET }}
     
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')

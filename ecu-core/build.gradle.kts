@@ -1,9 +1,11 @@
 import java.net.URL
+
 plugins {
     kotlin("jvm")
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
+    id("com.gradleup.nmcp") version "0.0.4"  // New Maven Central Portal plugin
 }
 
 dependencies {
@@ -78,11 +80,12 @@ publishing {
             from(components["java"])
             
             artifact(dokkaJavadocJar)
+            artifact(sourcesJar)
             
             pom {
                 name.set("ECU Core Library")
                 description.set("A lightweight, Java 8 compatible unit conversion library")
-                url.set("https://github.com/je1113/engineering-commerce-units")
+                url.set("https://github.com/je1113/Engineering-Commerce-Units")
                 
                 licenses {
                     license {
@@ -100,36 +103,34 @@ publishing {
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/je1113/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:ssh://github.com/je1113/engineering-commerce-units.git")
-                    url.set("https://github.com/je1113/engineering-commerce-units")
+                    connection.set("scm:git:git://github.com/je1113/Engineering-Commerce-Units.git")
+                    developerConnection.set("scm:git:ssh://github.com/je1113/Engineering-Commerce-Units.git")
+                    url.set("https://github.com/je1113/Engineering-Commerce-Units")
                 }
-            }
-        }
-    }
-    
-    repositories {
-        maven {
-            name = "CentralPortal"
-            url = uri("https://central.sonatype.com/api/v1/publisher/upload")
-            credentials {
-                username = project.findProperty("centralPortalToken") as String? 
-                    ?: System.getenv("CENTRAL_TOKEN")
-                password = project.findProperty("centralPortalSecret") as String? 
-                    ?: System.getenv("CENTRAL_SECRET")
             }
         }
     }
 }
 
 signing {
-    val signingKey: String? = project.findProperty("signingKey") as String? 
+    val signingKey: String? = project.findProperty("signingInMemoryKey") as String? 
         ?: System.getenv("GPG_SIGNING_KEY")
-    val signingPassword: String? = project.findProperty("signingPassword") as String? 
+    val signingPassword: String? = project.findProperty("signingInMemoryKeyPassword") as String? 
         ?: System.getenv("GPG_SIGNING_PASSWORD")
     
     if (signingKey != null && signingPassword != null) {
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications["maven"])
+    }
+}
+
+// New Maven Central Portal configuration
+nmcp {
+    publishAllProjectsProbablyBreakingProjectIsolation {
+        username = providers.gradleProperty("centralPortalUsername")
+            .orElse(providers.environmentVariable("CENTRAL_TOKEN"))
+        password = providers.gradleProperty("centralPortalPassword")
+            .orElse(providers.environmentVariable("CENTRAL_SECRET"))
+        publicationType = "AUTOMATIC"
     }
 }
