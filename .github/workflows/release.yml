@@ -93,10 +93,10 @@ jobs:
     
     - name: Publish to Maven Central
       run: |
-        ./gradlew :ecu-core:publishMavenPublicationToOSSRHRepository
+        ./gradlew :ecu-core:publishMavenPublicationToOSSRHRepository --info
       env:
-        OSSRH_USERNAME: ${{ secrets.CENTRAL_TOKEN }}
-        OSSRH_PASSWORD: ${{ secrets.CENTRAL_SECRET }}
+        CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
+        CENTRAL_SECRET: ${{ secrets.CENTRAL_SECRET }}
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
     
