@@ -5,7 +5,7 @@
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.20-blue.svg)](http://kotlinlang.org)
 [![Java](https://img.shields.io/badge/java-8+-orange.svg)](https://openjdk.java.net/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.parkyoungmin/ecu-core.svg)](https://search.maven.org/artifact/io.github.parkyoungmin/ecu-core)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.je1113/ecu-core.svg)](https://search.maven.org/artifact/io.github.je1113/ecu-core)
 
 ECU는 Java 8 이상을 지원하는 경량 단위 변환 라이브러리입니다. 레거시 Spring Boot 2.x 프로젝트부터 최신 환경까지 폭넓게 사용 가능합니다.
 
@@ -22,7 +22,7 @@ ECU는 Java 8 이상을 지원하는 경량 단위 변환 라이브러리입니�
 ### Maven
 ```xml
 <dependency>
-    <groupId>io.github.parkyoungmin</groupId>
+    <groupId>io.github.je1113</groupId>
     <artifactId>ecu-core</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -31,7 +31,7 @@ ECU는 Java 8 이상을 지원하는 경량 단위 변환 라이브러리입니�
 ### Gradle
 ```kotlin
 dependencies {
-    implementation("io.github.parkyoungmin:ecu-core:1.0.0")
+    implementation("io.github.je1113:ecu-core:1.0.0")
 }
 ```
 
@@ -175,7 +175,7 @@ public class ShippingService {
 
 ## 📖 문서
 
-- [API 문서](https://javadoc.io/doc/io.github.parkyoungmin/ecu-core)
+- [API 문서](https://javadoc.io/doc/io.github.je1113/ecu-core)
 - [예제 코드](examples/java8-example)
 - [변경 로그](CHANGELOG.md)
 

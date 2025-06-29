@@ -31,7 +31,7 @@ publishing {
             pom {
                 name.set("ECU Commerce Module")
                 description.set("Commerce-specific extensions for ECU Core library")
-                url.set("https://github.com/parkyoungmin/engineering-commerce-units")
+                url.set("https://github.com/je1113/engineering-commerce-units")
                 
                 licenses {
                     license {
@@ -42,16 +42,16 @@ publishing {
                 
                 developers {
                     developer {
-                        id.set("parkyoungmin")
+                        id.set("je1113")
                         name.set("Park Young Min")
                         email.set("your.email@example.com")
                     }
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/parkyoungmin/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:ssh://github.com/parkyoungmin/engineering-commerce-units.git")
-                    url.set("https://github.com/parkyoungmin/engineering-commerce-units")
+                    connection.set("scm:git:git://github.com/je1113/engineering-commerce-units.git")
+                    developerConnection.set("scm:git:ssh://github.com/je1113/engineering-commerce-units.git")
+                    url.set("https://github.com/je1113/engineering-commerce-units")
                 }
             }
         }

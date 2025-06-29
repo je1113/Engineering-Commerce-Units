@@ -71,7 +71,7 @@ val wholesale = RoundingProfile(
 ### 설치
 ```kotlin
 dependencies {
-    implementation("io.github.parkyoungmin:engineering-commerce-units:1.0.0")
+    implementation("io.github.je1113:engineering-commerce-units:1.0.0")
 }
 ```
 

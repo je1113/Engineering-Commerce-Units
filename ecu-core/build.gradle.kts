@@ -22,7 +22,7 @@ tasks.dokkaHtml {
             // 소스 링크 설정
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(URL("https://github.com/parkyoungmin/engineering-commerce-units/tree/main/ecu-core/src/main/kotlin"))
+                remoteUrl.set(URL("https://github.com/je1113/engineering-commerce-units/tree/main/ecu-core/src/main/kotlin"))
                 remoteLineSuffix.set("#L")
             }
         }
@@ -74,12 +74,11 @@ publishing {
             from(components["java"])
             
             artifact(dokkaJavadocJar)
-            artifact(sourcesJar)
             
             pom {
                 name.set("ECU Core Library")
                 description.set("A lightweight, Java 8 compatible unit conversion library")
-                url.set("https://github.com/parkyoungmin/engineering-commerce-units")
+                url.set("https://github.com/je1113/engineering-commerce-units")
                 
                 licenses {
                     license {
@@ -90,16 +89,16 @@ publishing {
                 
                 developers {
                     developer {
-                        id.set("parkyoungmin")
+                        id.set("je1113")
                         name.set("Park Young Min")
                         email.set("your.email@example.com")
                     }
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/parkyoungmin/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:ssh://github.com/parkyoungmin/engineering-commerce-units.git")
-                    url.set("https://github.com/parkyoungmin/engineering-commerce-units")
+                    connection.set("scm:git:git://github.com/je1113/engineering-commerce-units.git")
+                    developerConnection.set("scm:git:ssh://github.com/je1113/engineering-commerce-units.git")
+                    url.set("https://github.com/je1113/engineering-commerce-units")
                 }
             }
         }
@@ -107,19 +106,23 @@ publishing {
     
     repositories {
         maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            name = "CentralPortal"
+            url = uri("https://central.sonatype.com/api/v1/publisher/upload")
             credentials {
-                username = project.findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USERNAME")
-                password = project.findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
+                username = project.findProperty("centralPortalToken") as String? 
+                    ?: System.getenv("CENTRAL_TOKEN")
+                password = project.findProperty("centralPortalSecret") as String? 
+                    ?: System.getenv("CENTRAL_SECRET")
             }
         }
     }
 }
 
 signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
+    val signingKey: String? = project.findProperty("signingKey") as String? 
+        ?: System.getenv("GPG_SIGNING_KEY")
+    val signingPassword: String? = project.findProperty("signingPassword") as String? 
+        ?: System.getenv("GPG_SIGNING_PASSWORD")
     
     if (signingKey != null && signingPassword != null) {
         useInMemoryPgpKeys(signingKey, signingPassword)

@@ -13,7 +13,7 @@ ECU Quantity는 **제품별로 다른 포장 단위**를 관리합니다:
 
 ```kotlin
 dependencies {
-    implementation("io.github.parkyoungmin:engineering-commerce-units:1.0.0")
+    implementation("io.github.je1113:engineering-commerce-units:1.0.0")
 }
 ```
 
