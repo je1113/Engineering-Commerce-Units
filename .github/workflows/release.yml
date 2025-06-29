@@ -60,7 +60,7 @@ jobs:
     
     - name: Extract GPG private key
       run: |
-        echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode > private-key.gpg
+        echo "${{ secrets.GPG_SIGNING_KEY }}" > private-key.gpg
         echo "${{ secrets.GPG_SIGNING_PASSWORD }}" > passphrase.txt
         
     - name: Import GPG key
