@@ -26,6 +26,20 @@ class Quantity private constructor(
     /** ream(500개) 단위로 변환된 값 */
     val reams: Double get() = baseValue / 500.0
     
+    /**
+     * 현재 단위에서의 값 계산
+     */
+    val value: Double
+        get() {
+            val definition = UnitRegistry.getDefinition(symbol)
+            return if (definition != null) {
+                baseValue / definition.baseRatio
+            } else {
+                // 특수 단위 (box(12), pack(6) 등) 처리
+                baseValue
+            }
+        }
+    
     override fun createInstance(
         baseValue: Double,
         symbol: String,
@@ -44,7 +58,7 @@ class Quantity private constructor(
             "Target unit $targetSymbol is not a quantity unit"
         }
         
-        val newValue = baseValue / targetDef.factor
+        val newValue = baseValue / targetDef.baseRatio
         return Quantity(baseValue, targetSymbol, targetDef.displayName, precision, roundingMode)
     }
     
@@ -57,7 +71,7 @@ class Quantity private constructor(
         require(packSize > 0) { "Pack size must be positive" }
         val packages = baseValue / packSize
         return Quantity(
-            baseValue,
+            packages,
             "pack($packSize)",
             "$packSize-pack",
             precision,
@@ -74,7 +88,7 @@ class Quantity private constructor(
         require(boxSize > 0) { "Box size must be positive" }
         val boxes = baseValue / boxSize
         return Quantity(
-            baseValue,
+            boxes,  // 박스 개수를 baseValue로 설정
             "box($boxSize)",
             "$boxSize-box",
             precision,
@@ -91,7 +105,7 @@ class Quantity private constructor(
         require(palletSize > 0) { "Pallet size must be positive" }
         val pallets = baseValue / palletSize
         return Quantity(
-            baseValue,
+            pallets,
             "pallet($palletSize)",
             "$palletSize-pallet",
             precision,
@@ -125,7 +139,7 @@ class Quantity private constructor(
         init {
             // 기본 수량 단위 등록
             UnitRegistry.register(
-                UnitDefinition("pcs", "pieces", UnitCategory.QUANTITY, 1.0)
+                UnitDefinition("pcs", "pieces", UnitCategory.QUANTITY, 1.0, aliases = setOf("pieces"))
             )
             UnitRegistry.register(
                 UnitDefinition("piece", "piece", UnitCategory.QUANTITY, 1.0)
@@ -134,7 +148,7 @@ class Quantity private constructor(
                 UnitDefinition("ea", "each", UnitCategory.QUANTITY, 1.0)
             )
             UnitRegistry.register(
-                UnitDefinition("dz", "dozen", UnitCategory.QUANTITY, 12.0)
+                UnitDefinition("dz", "dozen", UnitCategory.QUANTITY, 12.0, aliases = setOf("dozens"))
             )
             UnitRegistry.register(
                 UnitDefinition("dozen", "dozen", UnitCategory.QUANTITY, 12.0)
@@ -150,6 +164,38 @@ class Quantity private constructor(
             )
             UnitRegistry.register(
                 UnitDefinition("score", "score", UnitCategory.QUANTITY, 20.0)
+            )
+            
+            // 포장 단위 등록
+            UnitRegistry.register(
+                UnitDefinition("box", "box", UnitCategory.QUANTITY, 1.0, aliases = setOf("boxes"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("pack", "pack", UnitCategory.QUANTITY, 1.0, aliases = setOf("packs"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("case", "case", UnitCategory.QUANTITY, 1.0, aliases = setOf("cases"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("carton", "carton", UnitCategory.QUANTITY, 1.0, aliases = setOf("cartons"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("pallet", "pallet", UnitCategory.QUANTITY, 1.0, aliases = setOf("pallets"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("tray", "tray", UnitCategory.QUANTITY, 1.0, aliases = setOf("trays"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("tube", "tube", UnitCategory.QUANTITY, 1.0, aliases = setOf("tubes"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("reel", "reel", UnitCategory.QUANTITY, 1.0, aliases = setOf("reels"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("flat", "flat", UnitCategory.QUANTITY, 1.0, aliases = setOf("flats"))
+            )
+            UnitRegistry.register(
+                UnitDefinition("container", "container", UnitCategory.QUANTITY, 1.0, aliases = setOf("containers"))
             )
         }
         
@@ -172,7 +218,7 @@ class Quantity private constructor(
                 "Unit $unit is not a quantity unit"
             }
             
-            val baseValue = value * def.factor
+            val baseValue = value * def.baseRatio
             return Quantity(baseValue, unit, def.displayName)
         }
         
@@ -216,4 +262,12 @@ class Quantity private constructor(
         require(factor != 0.0) { "Division by zero" }
         return Quantity(baseValue / factor, symbol, displayName, precision, roundingMode)
     }
+}
+
+/**
+ * Quantity 확장 함수로 라운딩 프로파일 적용
+ */
+fun Quantity.applyRounding(profile: CommerceRoundingProfile): Quantity {
+    val roundedValue = profile.applyRounding(this.pieces)
+    return Quantity.pieces(roundedValue)
 }

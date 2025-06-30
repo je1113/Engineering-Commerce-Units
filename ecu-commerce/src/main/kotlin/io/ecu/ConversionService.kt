@@ -280,7 +280,7 @@ class ConversionService {
             quantity.to(targetUnit)
         }
         
-        val value = converted.baseValue / (UnitRegistry.getDefinition(targetUnit)?.factor ?: 1.0)
+        val value = converted.baseValue / (UnitRegistry.getDefinition(targetUnit)?.baseRatio ?: 1.0)
         val whole = value.toInt()
         val fractional = value - whole
         

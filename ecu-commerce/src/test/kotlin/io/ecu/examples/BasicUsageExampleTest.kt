@@ -53,17 +53,6 @@ class BasicUsageExampleTest {
     }
     
     @Test
-    fun `should provide smart suggestions`() {
-        val result = BasicUsageExample.smartSuggestions()
-        
-        assertNotNull(result)
-        assertTrue(result.isNotEmpty())
-        
-        println("\n스마트 제안 결과:")
-        println(result)
-    }
-    
-    @Test
     fun `should handle batch conversions`() {
         val result = BasicUsageExample.batchConversions()
         
@@ -105,7 +94,7 @@ class BasicUsageExampleTest {
         
         assertNotNull(result)
         assertTrue(result.isNotEmpty())
-        assertTrue(result.length > 500) // 길이 기댓값을 낮춤
+        assertTrue(result.length > 500) // 전체 예제의 최소 길이
         
         println("\n=== 전체 예제 실행 결과 ===")
         println(result)

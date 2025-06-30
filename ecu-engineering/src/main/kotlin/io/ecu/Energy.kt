@@ -21,6 +21,26 @@ class Energy private constructor(
 ) : BaseUnit<Energy>(baseValue, symbol, displayName, UnitCategory.ENERGY, precision, roundingMode) {
 
     companion object {
+        init {
+            // 에너지 단위 등록
+            UnitRegistry.register(UnitDefinition("J", "joule", UnitCategory.ENERGY, 1.0, true, setOf("joule", "joules")))
+            UnitRegistry.register(UnitDefinition("kJ", "kilojoule", UnitCategory.ENERGY, 1000.0, aliases = setOf("kilojoule", "kilojoules")))
+            UnitRegistry.register(UnitDefinition("MJ", "megajoule", UnitCategory.ENERGY, 1_000_000.0, aliases = setOf("megajoule", "megajoules")))
+            UnitRegistry.register(UnitDefinition("GJ", "gigajoule", UnitCategory.ENERGY, 1_000_000_000.0, aliases = setOf("gigajoule", "gigajoules")))
+            UnitRegistry.register(UnitDefinition("mJ", "millijoule", UnitCategory.ENERGY, 0.001, aliases = setOf("millijoule", "millijoules")))
+            UnitRegistry.register(UnitDefinition("Wh", "watt hour", UnitCategory.ENERGY, 3600.0, aliases = setOf("watt-hour", "watthour")))
+            UnitRegistry.register(UnitDefinition("kWh", "kilowatt hour", UnitCategory.ENERGY, 3_600_000.0, aliases = setOf("kilowatt-hour", "kilowatthour")))
+            UnitRegistry.register(UnitDefinition("MWh", "megawatt hour", UnitCategory.ENERGY, 3_600_000_000.0, aliases = setOf("megawatt-hour", "megawatthour")))
+            UnitRegistry.register(UnitDefinition("cal", "calorie", UnitCategory.ENERGY, 4.184, aliases = setOf("calorie", "calories")))
+            UnitRegistry.register(UnitDefinition("kcal", "kilocalorie", UnitCategory.ENERGY, 4184.0, aliases = setOf("kilocalorie", "kilocalories", "Cal")))
+            UnitRegistry.register(UnitDefinition("BTU", "British thermal unit", UnitCategory.ENERGY, 1055.06, aliases = setOf("btu", "Btu")))
+            UnitRegistry.register(UnitDefinition("eV", "electron volt", UnitCategory.ENERGY, 1.602176634e-19, aliases = setOf("electronvolt")))
+            UnitRegistry.register(UnitDefinition("keV", "kiloelectron volt", UnitCategory.ENERGY, 1.602176634e-16, aliases = setOf("kiloelectronvolt")))
+            UnitRegistry.register(UnitDefinition("MeV", "megaelectron volt", UnitCategory.ENERGY, 1.602176634e-13, aliases = setOf("megaelectronvolt")))
+            UnitRegistry.register(UnitDefinition("ft⋅lbf", "foot-pound", UnitCategory.ENERGY, 1.35582, aliases = setOf("ft-lbf", "ftlbf", "foot-pound")))
+            UnitRegistry.register(UnitDefinition("tTNT", "ton of TNT", UnitCategory.ENERGY, 4.184e9, aliases = setOf("ton-TNT")))
+        }
+        
         /**
          * 문자열에서 에너지 객체 생성
          *

@@ -1,14 +1,16 @@
 package io.ecu
 
+import io.ecu.RoundingMode
+import io.ecu.RoundingProfile as CoreRoundingProfile
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
 
 /**
- * 라운딩 프로파일
+ * 상거래용 확장 라운딩 프로파일
  * 상거래에서 필요한 다양한 라운딩 규칙을 정의합니다.
  */
-data class RoundingProfile(
+data class CommerceRoundingProfile(
     /** 최소 주문 단위 (MOQ - Minimum Order Quantity) */
     val minimumOrderQuantity: Double = 1.0,
     
@@ -184,13 +186,25 @@ data class RoundingProfile(
         val suggestedQuantity: Double? = null
     )
     
+    /**
+     * Core RoundingProfile로 변환
+     */
+    fun toCoreProfile(): CoreRoundingProfile {
+        return CoreRoundingProfile(
+            minimumOrderQuantity = minimumOrderQuantity,
+            packagingUnit = packagingUnit,
+            roundingMode = roundingMode,
+            allowFractional = false
+        )
+    }
+    
     companion object {
         /**
          * 일반적인 프로파일 프리셋
          */
         
         /** 소매용 프로파일 (개별 판매) */
-        val RETAIL = RoundingProfile(
+        val RETAIL = CommerceRoundingProfile(
             minimumOrderQuantity = 1.0,
             packagingUnit = 1.0,
             roundingMode = RoundingMode.UP,
@@ -198,7 +212,7 @@ data class RoundingProfile(
         )
         
         /** 도매용 프로파일 (박스 단위) */
-        val WHOLESALE = RoundingProfile(
+        val WHOLESALE = CommerceRoundingProfile(
             minimumOrderQuantity = 12.0,
             packagingUnit = 12.0,
             roundingMode = RoundingMode.UP,
@@ -206,7 +220,7 @@ data class RoundingProfile(
         )
         
         /** 벌크 프로파일 (팔레트 단위) */
-        val BULK = RoundingProfile(
+        val BULK = CommerceRoundingProfile(
             minimumOrderQuantity = 144.0,
             packagingUnit = 144.0,
             roundingMode = RoundingMode.UP,
@@ -221,7 +235,7 @@ data class RoundingProfile(
         )
         
         /** B2B 프로파일 (유연한 대량 주문) */
-        val B2B = RoundingProfile(
+        val B2B = CommerceRoundingProfile(
             minimumOrderQuantity = 100.0,
             packagingUnit = 10.0,
             roundingMode = RoundingMode.HALF_UP,
@@ -230,7 +244,7 @@ data class RoundingProfile(
         )
         
         /** 음료 6팩 프로파일 */
-        val BEVERAGE_6PACK = RoundingProfile(
+        val BEVERAGE_6PACK = CommerceRoundingProfile(
             minimumOrderQuantity = 6.0,
             packagingUnit = 6.0,
             roundingMode = RoundingMode.UP,
@@ -238,7 +252,7 @@ data class RoundingProfile(
         )
         
         /** 계란 프로파일 (12개 단위) */
-        val EGG_DOZEN = RoundingProfile(
+        val EGG_DOZEN = CommerceRoundingProfile(
             minimumOrderQuantity = 12.0,
             packagingUnit = 12.0,
             roundingMode = RoundingMode.UP,
@@ -253,7 +267,7 @@ data class RoundingProfile(
         )
         
         /** 종이 프로파일 (500장 = 1 ream) */
-        val PAPER_REAM = RoundingProfile(
+        val PAPER_REAM = CommerceRoundingProfile(
             minimumOrderQuantity = 500.0,
             packagingUnit = 500.0,
             roundingMode = RoundingMode.UP,
@@ -263,50 +277,40 @@ data class RoundingProfile(
 }
 
 /**
- * Quantity 확장 함수로 라운딩 프로파일 적용
- */
-fun Quantity.applyRounding(profile: RoundingProfile): Quantity {
-    val roundedValue = profile.applyRounding(this.pieces)
-    return Quantity.pieces(roundedValue)
-        .withPrecision(this.precision)
-        .withRounding(this.roundingMode)
-}
-
-/**
  * 여러 프로파일 중 가장 적합한 것 선택
  */
 class RoundingProfileSelector {
-    private val profiles = mutableMapOf<String, RoundingProfile>()
+    private val profiles = mutableMapOf<String, CommerceRoundingProfile>()
     
     init {
         // 기본 프로파일 등록
-        register("retail", RoundingProfile.RETAIL)
-        register("wholesale", RoundingProfile.WHOLESALE)
-        register("bulk", RoundingProfile.BULK)
-        register("b2b", RoundingProfile.B2B)
-        register("beverage", RoundingProfile.BEVERAGE_6PACK)
-        register("egg", RoundingProfile.EGG_DOZEN)
-        register("paper", RoundingProfile.PAPER_REAM)
+        register("retail", CommerceRoundingProfile.RETAIL)
+        register("wholesale", CommerceRoundingProfile.WHOLESALE)
+        register("bulk", CommerceRoundingProfile.BULK)
+        register("b2b", CommerceRoundingProfile.B2B)
+        register("beverage", CommerceRoundingProfile.BEVERAGE_6PACK)
+        register("egg", CommerceRoundingProfile.EGG_DOZEN)
+        register("paper", CommerceRoundingProfile.PAPER_REAM)
     }
     
     /**
      * 프로파일 등록
      */
-    fun register(name: String, profile: RoundingProfile) {
+    fun register(name: String, profile: CommerceRoundingProfile) {
         profiles[name.lowercase()] = profile
     }
     
     /**
      * 프로파일 조회
      */
-    fun get(name: String): RoundingProfile? {
+    fun get(name: String): CommerceRoundingProfile? {
         return profiles[name.lowercase()]
     }
     
     /**
      * 수량에 따라 자동으로 프로파일 선택
      */
-    fun selectAutomatic(quantity: Double, productType: String? = null): RoundingProfile {
+    fun selectAutomatic(quantity: Double, productType: String? = null): CommerceRoundingProfile {
         // 제품 타입이 지정된 경우
         productType?.let { type ->
             profiles[type.lowercase()]?.let { return it }
@@ -314,10 +318,10 @@ class RoundingProfileSelector {
         
         // 수량에 따른 자동 선택
         return when {
-            quantity < 10 -> RoundingProfile.RETAIL
-            quantity < 100 -> RoundingProfile.WHOLESALE
-            quantity < 1000 -> RoundingProfile.B2B
-            else -> RoundingProfile.BULK
+            quantity < 10 -> CommerceRoundingProfile.RETAIL
+            quantity < 100 -> CommerceRoundingProfile.WHOLESALE
+            quantity < 1000 -> CommerceRoundingProfile.B2B
+            else -> CommerceRoundingProfile.BULK
         }
     }
     
@@ -365,7 +369,7 @@ class RoundingProfileSelector {
      */
     data class ProfileOption(
         val profileName: String,
-        val profile: RoundingProfile,
+        val profile: CommerceRoundingProfile,
         val resultQuantity: Double,
         val waste: Double,
         val wastePercentage: Double

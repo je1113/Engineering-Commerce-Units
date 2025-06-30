@@ -78,33 +78,6 @@ object BasicUsageExample {
     }
     
     /**
-     * 스마트 제안 예제
-     */
-    fun smartSuggestions(): String {
-        val results = mutableListOf<String>()
-        
-        val testCases = listOf(
-            "0.001kg",
-            "0.5l", 
-            "250K",
-            "0.005m²",
-            "86400s"
-        )
-        
-        testCases.forEach { input ->
-            val suggestion = ECU.Auto.suggest(input)
-            if (suggestion.hasSuggestion()) {
-                results.add("${suggestion.original} → ${suggestion.suggested}")
-                results.add("  이유: ${suggestion.reason}")
-            } else {
-                results.add("$input: ${suggestion.reason}")
-            }
-        }
-        
-        return results.joinToString("\n")
-    }
-    
-    /**
      * 배치 변환 예제
      */
     fun batchConversions(): String {
@@ -188,19 +161,15 @@ object BasicUsageExample {
         results.add(mathOperations())
         results.add("")
         
-        results.add("4. 스마트 제안:")
-        results.add(smartSuggestions())
-        results.add("")
-        
-        results.add("5. 배치 변환:")
+        results.add("4. 배치 변환:")
         results.add(batchConversions())
         results.add("")
         
-        results.add("6. 요리 레시피 변환:")
+        results.add("5. 요리 레시피 변환:")
         results.add(cookingRecipe())
         results.add("")
         
-        results.add("7. 특별 기능:")
+        results.add("6. 특별 기능:")
         results.add(specialFeatures())
         
         return results.joinToString("\n")

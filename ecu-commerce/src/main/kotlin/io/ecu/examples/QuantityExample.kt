@@ -26,7 +26,7 @@ fun main() {
 
 fun basicQuantityConversion() {
     println("1. Basic Quantity Conversion")
-    println("-" * 40)
+    println("-".repeat(40))
     
     // 다양한 수량 단위 생성
     val qty1 = ECU.quantity("25 dozens")
@@ -54,7 +54,7 @@ fun basicQuantityConversion() {
 
 fun productSpecificConversion() {
     println("2. Product-Specific Conversion")
-    println("-" * 40)
+    println("-".repeat(40))
     
     // 제품 A: 1 박스 = 10개
     val productA = ProductUnitConfiguration.builder("PROD-A", "piece")
@@ -98,7 +98,7 @@ fun productSpecificConversion() {
 
 fun packagingHierarchyExample() {
     println("3. Packaging Hierarchy & Optimization")
-    println("-" * 40)
+    println("-".repeat(40))
     
     val service = QuantityConversionService()
     
@@ -140,7 +140,7 @@ fun packagingHierarchyExample() {
 
 fun inventoryAvailabilityExample() {
     println("4. Inventory Availability Check")
-    println("-" * 40)
+    println("-".repeat(40))
     
     val service = QuantityConversionService()
     
@@ -184,7 +184,7 @@ fun inventoryAvailabilityExample() {
 
 fun roundingProfileExample() {
     println("5. Rounding Profile Application")
-    println("-" * 40)
+    println("-".repeat(40))
     
     // 다양한 라운딩 프로파일
     val profiles = mapOf(
@@ -216,11 +216,6 @@ fun roundingProfileExample() {
 }
 
 // 확장 함수: Double 포맷팅
-fun Double.format(decimals: Int = 2): String {
+private fun Double.format(decimals: Int = 2): String {
     return "%.${decimals}f".format(this)
-}
-
-// 확장 함수: 반복 문자
-operator fun String.times(count: Int): String {
-    return this.repeat(count)
 }

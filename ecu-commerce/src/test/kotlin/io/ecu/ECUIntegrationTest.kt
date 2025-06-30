@@ -106,90 +106,23 @@ class ECUIntegrationTest {
     }
     
     @Test
-    fun `should provide intelligent unit suggestions across categories`() {
-        // 다양한 카테고리에서 스마트 제안 테스트
-        val suggestions = listOf(
-            ECU.Auto.suggest("0.001kg"),    // → g
-            ECU.Auto.suggest("0.0005l"),    // → ml
-            ECU.Auto.suggest("250K"),       // → °C
-            ECU.Auto.suggest("0.005m²"),    // → cm²
-            ECU.Auto.suggest("0.1m"),       // → cm
-            ECU.Auto.suggest("0.005m/s"),   // → mm/s (매우 느린 속도)
-            ECU.Auto.suggest("400m/s")      // → Ma (초음속)
-        )
+    fun `should handle quantity conversions for commerce`() {
+        // 상거래 수량 변환 테스트
+        val order1 = ECU.quantity("12 dozen")
+        val order2 = ECU.quantity("5 gross")
+        val order3 = ECU.quantity("2 ream")
         
-        suggestions.forEach { suggestion ->
-            assertTrue(suggestion.hasSuggestion(), "Should have suggestion for: ${suggestion.original}")
-            assertNotNull(suggestion.suggested)
-        }
-    }
-    
-    @Test
-    fun `should handle transportation planning scenario`() {
-        // 교통 계획 시나리오
-        val distances = listOf("150km", "20mi", "50000m")
-        val speeds = listOf("60km/h", "35mph", "15m/s")
+        assertEquals(144.0, order1.pieces, 0.01)
+        assertEquals(720.0, order2.pieces, 0.01)
+        assertEquals(1000.0, order3.pieces, 0.01)
         
-        // 모든 거리를 km로, 모든 속도를 km/h로 변환
-        val kmDistances = ECU.Batch.convertLengths(distances, "km")
-        val kmhSpeeds = ECU.Batch.convertSpeeds(speeds, "km/h")
+        // 박스 변환
+        val items = ECU.quantity("100 pieces")
+        val boxes12 = items.toBoxes(12)
+        val boxes24 = items.toBoxes(24)
         
-        assertEquals(150.0, kmDistances[0].value, 0.01)
-        assertEquals(32.19, kmDistances[1].value, 0.01) // 20mi ≈ 32.19km
-        assertEquals(50.0, kmDistances[2].value, 0.01)  // 50000m = 50km
-        
-        assertEquals(60.0, kmhSpeeds[0].value, 0.01)
-        assertEquals(56.33, kmhSpeeds[1].value, 0.01)   // 35mph ≈ 56.33km/h
-        assertEquals(54.0, kmhSpeeds[2].value, 0.01)    // 15m/s = 54km/h
-        
-        // 여행 시간 계산 (첫 번째 구간)
-        val travelTime = kmDistances[0].kilometers / kmhSpeeds[0].kilometersPerHour
-        assertEquals(2.5, travelTime, 0.01) // 150km / 60km/h = 2.5시간
-    }
-    
-    @Test
-    fun `should handle aviation calculation scenario`() {
-        // 항공 계산 시나리오
-        val aircraftSpeed = ECU.speed("450kn")  // 일반적인 항공기 순항 속도
-        val windSpeed = ECU.speed("25mph")       // 바람 속도
-        val altitude = ECU.length("35000ft")     // 순항 고도
-        
-        // 속도를 같은 단위로 변환
-        val windInKnots = windSpeed.to("kn")
-        
-        // 마하 수 계산
-        val machNumber = aircraftSpeed.mach
-        assertTrue(machNumber < 1.0) // 아음속
-        // 450 knots = 231.499... m/s, 231.499.../343 = 0.6749...
-        assertEquals(0.6749265306122448, machNumber, 0.01)
-        
-        // 고도를 미터로 변환
-        val altitudeInM = altitude.to("m")
-        assertEquals(10668.0, altitudeInM.value, 1.0)
-        
-        // 속도 카테고리 확인
-        assertEquals(SpeedCategory.VERY_FAST, aircraftSpeed.getSpeedCategory())
-        assertEquals(SpeedCategory.MODERATE, windSpeed.getSpeedCategory())
-    }
-    
-    @Test
-    fun `should handle automotive engineering scenario`() {
-        // 자동차 공학 시나리오
-        val carSpeed = ECU.speed("120km/h")
-        val carMass = ECU.weight("1500kg")
-        val brakingDistance = ECU.length("50m")
-        
-        // 운동 에너지 계산
-        val kineticEnergy = carSpeed.kineticEnergy(carMass.kilograms)
-        assertEquals( 833333.66, kineticEnergy, 1.0) // KE = 0.5 * 1500 * (33.33)²
-        
-        // 제동 시간 계산 (단순화된 모델)
-        val brakingTime = carSpeed.timeForDistance(brakingDistance.meters)
-        assertEquals(1.5, brakingTime, 0.01) // 50m / 33.33m/s = 1.5초
-        
-        // 다른 단위로 속도 표시
-        val speedInMph = carSpeed.to("mph")
-        assertEquals(74.56, speedInMph.value, 0.01)
+        assertEquals(8.33, boxes12.value, 0.01)
+        assertEquals(4.17, boxes24.value, 0.01)
     }
     
     @Test
@@ -215,27 +148,17 @@ class ECUIntegrationTest {
         val weightUnits = ECU.Info.getSupportedWeightUnits()
         val volumeUnits = ECU.Info.getSupportedVolumeUnits()
         val areaUnits = ECU.Info.getSupportedAreaUnits()
-        val speedUnits = ECU.Info.getSupportedSpeedUnits()
         
         assertTrue(lengthUnits.isNotEmpty())
         assertTrue(weightUnits.isNotEmpty())
         assertTrue(volumeUnits.isNotEmpty())
         assertTrue(areaUnits.isNotEmpty())
-        assertTrue(speedUnits.isNotEmpty())
         
         // 기본 단위들이 포함되어 있는지 확인
         assertTrue("m" in lengthUnits)
         assertTrue("kg" in weightUnits)
         assertTrue("l" in volumeUnits)
         assertTrue("m²" in areaUnits)
-        assertTrue("m/s" in speedUnits)
-        
-        // 속도 단위 추가 확인
-        assertTrue("km/h" in speedUnits)
-        assertTrue("mph" in speedUnits)
-        assertTrue("kn" in speedUnits)
-        assertTrue("ft/s" in speedUnits)
-        assertTrue("Ma" in speedUnits)
     }
     
     @Test
@@ -294,154 +217,62 @@ class ECUIntegrationTest {
     }
     
     @Test
-    fun `should handle automotive torque scenario`() {
-        // 자동차 토크 시나리오
-        val engineTorque = ECU.torque("420 ft-lb") // 고성능 엔진 토크
-        val wheelDiameter = ECU.length("0.7m") // 타이어 직경
+    fun `should handle commerce-specific scenarios`() {
+        // 상거래 특화 시나리오
+        val service = QuantityConversionService()
         
-        // SI 단위로 변환
-        val torqueNm = engineTorque.to("Nm")
-        assertEquals(569.44, torqueNm.value, 0.01)
+        // 제품 설정
+        val productConfig = ProductUnitConfiguration.builder("PROD-001", "piece")
+            .addConversion("box", 1.0, 12.0)
+            .addConversion("case", 1.0, 144.0)
+            .build()
         
-        // 바퀴에서의 힘 계산 (토크 / 반지름)
-        val wheelForce = engineTorque.forceAtDistance(wheelDiameter.meters / 2)
-        assertEquals(1626.98, wheelForce, 0.02) // N
+        service.registerProduct(productConfig)
         
-        // 5000 RPM에서의 출력
-        val powerWatts = engineTorque.powerAtRPM(5000.0)
-        val powerHP = powerWatts / 745.7 // Convert to horsepower
-        assertEquals(400.0, powerHP, 1.0) // ~400 HP
+        // 포장 계층 등록
+        service.registerPackagingHierarchy("PROD-001", PackagingHierarchy(
+            productId = "PROD-001",
+            levels = listOf(
+                PackagingLevel("piece", "piece", 1.0, 1.0),
+                PackagingLevel("box", "box", 12.0, 1.0),
+                PackagingLevel("case", "case", 144.0, 1.0)
+            )
+        ))
         
-        // 토크 스케일 확인
-        assertEquals(TorqueScale.AUTOMOTIVE, engineTorque.getTorqueScale())
+        // 최적 포장 제안
+        val order = ECU.quantity("250 pieces")
+        val suggestion = service.suggestOptimalPackaging("PROD-001", order)
         
-        // 자동차 형식으로 표시
-        assertEquals("420.0 ft-lb", engineTorque.toAutomotiveFormat())
+        assertNotNull(suggestion.optimal)
+        assertTrue(suggestion.optimal!!.components.isNotEmpty())
+        assertTrue(suggestion.optimal!!.efficiency > 0.5)
     }
     
     @Test
-    fun `should handle industrial torque wrench calibration`() {
-        // 산업용 토크 렌치 교정 시나리오
-        val targetTorques = listOf("50 Nm", "100 ft-lb", "500 in-lb", "10 kgf⋅m")
+    fun `should handle quantity formatting options`() {
+        // 수량 포맷팅 옵션 테스트
+        val quantity = ECU.quantity("1234.56 pieces")
+        val formatter = QuantityFormatter(
+            locale = QuantityFormatter.Locale.US,
+            options = QuantityFormatter.FormattingOptions(
+                useThousandsSeparator = true,
+                decimalPlaces = 2
+            )
+        )
         
-        // 모든 토크를 Nm로 변환
-        val nmTorques = ECU.Batch.convertTorques(targetTorques, "Nm")
+        val formatted = formatter.format(quantity)
+        assertTrue(formatted.contains("1,234.56"))
         
-        assertEquals(50.0, nmTorques[0].value, 0.01)
-        assertEquals(135.58, nmTorques[1].value, 0.01)
-        assertEquals(56.49, nmTorques[2].value, 0.01)
-        assertEquals(98.07, nmTorques[3].value, 0.01)
+        // EU 형식
+        val euFormatter = QuantityFormatter(
+            locale = QuantityFormatter.Locale.EU,
+            options = QuantityFormatter.FormattingOptions(
+                useThousandsSeparator = true,
+                decimalPlaces = 2
+            )
+        )
         
-        // 정밀도 설정
-        val preciseTorque = nmTorques[1].withPrecision(1)
-        assertEquals("135.6 Nm", preciseTorque.format())
-        
-        // 엔지니어링 형식 표시
-        nmTorques.forEach { torque ->
-            val formatted = torque.toEngineeringFormat()
-            assertTrue(formatted.contains("N⋅m"))
-        }
-    }
-    
-    @Test
-    fun `should handle electric motor torque and power calculations`() {
-        // 전기 모터 토크 및 전력 계산
-        val motorTorque = ECU.torque("2.5 Nm") // 서보 모터
-        val motorSpeed = ECU.speed("3000 rpm") // RPM으로 표현된 속도
-        
-        // 3000 RPM에서의 전력 계산
-        val powerWatts = motorTorque.powerAtRPM(3000.0)
-        assertEquals(785.4, powerWatts, 0.1) // ~785W
-        
-        // 작은 토크는 다른 단위로 표시
-        val ozfIn = motorTorque.to("ozf⋅in")
-        assertEquals(354.02, ozfIn.value, 0.01)
-        
-        // 스마트 단위 제안
-        val suggestion = ECU.Auto.suggest("2.5 Nm")
-        assertTrue(suggestion.hasSuggestion())
-    }
-    
-    @Test
-    fun `should handle torque-based work calculations`() {
-        // 토크 기반 일 계산
-        val drillTorque = ECU.torque("50 Nm")
-        val rotations = 10.0 // 10 회전
-        val angleRadians = rotations * 2 * Math.PI
-        
-        // 수행된 일 계산
-        val workJoules = drillTorque.workOverAngle(angleRadians)
-        assertEquals(3141.59, workJoules, 0.01) // ~3.14 kJ
-        
-        // 에너지로 변환
-        val energy = Energy.joules(workJoules)
-        val kJ = energy.to("kJ")
-        assertEquals(3.14, kJ.value, 0.01)
-    }
-    
-    @Test
-    fun `should handle precision torque applications`() {
-        // 정밀 토크 응용 (시계, 전자기기 등)
-        val watchSpring = ECU.torque("0.05 mNm")
-        val electronicScrew = ECU.torque("0.5 ozf⋅in")
-        
-        // 매우 작은 토크 변환
-        val watchInNm = watchSpring.to("Nm")
-        assertEquals(0.00005, watchInNm.value, 0.000001)
-        
-        // 전자기기 나사 토크
-        val screwInNm = electronicScrew.to("Nm")
-        assertEquals(0.00353, screwInNm.value, 0.00001)
-        
-        // 토크 스케일 확인
-        assertEquals(TorqueScale.MICRO, watchSpring.getTorqueScale())
-        assertEquals(TorqueScale.MICRO, electronicScrew.getTorqueScale())
-    }
-    
-    @Test
-    fun `should validate all torque units are accessible`() {
-        // 모든 토크 단위 접근 가능 확인
-        val torqueUnits = ECU.Info.getSupportedTorqueUnits()
-        
-        assertTrue(torqueUnits.isNotEmpty())
-        assertTrue("Nm" in torqueUnits)
-        assertTrue("ft-lb" in torqueUnits)
-        assertTrue("in-lb" in torqueUnits)
-        assertTrue("kNm" in torqueUnits)
-        assertTrue("mNm" in torqueUnits)
-        assertTrue("kgf⋅m" in torqueUnits)
-        assertTrue("ozf⋅in" in torqueUnits)
-        assertTrue("dNm" in torqueUnits)
-    }
-    
-    @Test
-    fun `should handle energy unit validation`() {
-        // 에너지 단위 접근 가능 확인
-        val energyUnits = ECU.Info.getSupportedEnergyUnits()
-        
-        assertTrue(energyUnits.isNotEmpty())
-        assertTrue("J" in energyUnits)
-        assertTrue("kWh" in energyUnits)
-        assertTrue("cal" in energyUnits)
-        assertTrue("BTU" in energyUnits)
-        assertTrue("eV" in energyUnits)
-    }
-    
-    @Test
-    fun `should handle energy consumption scenario`() {
-        // 에너지 소비 시나리오
-        val dailyUsage = ECU.energy("25 kWh") // 가정 일일 전력 사용량
-        val gasHeating = ECU.energy("100000 BTU") // 가스 난방
-        
-        // 모두 kWh로 변환
-        val gasInKwh = gasHeating.to("kWh")
-        val totalKwh = dailyUsage.kilowattHours + gasInKwh.kilowattHours
-        
-        assertEquals(29.31, gasInKwh.value, 0.01)
-        assertEquals(54.31, totalKwh, 0.01)
-        
-        // 월간 비용 계산 (kWh당 $0.12 가정)
-        val monthlyCost = totalKwh * 30 * 0.12
-        assertEquals(195.516, monthlyCost, 0.02)
+        val euFormatted = euFormatter.format(quantity)
+        assertTrue(euFormatted.contains("1.234,56"))
     }
 }

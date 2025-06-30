@@ -1,4 +1,10 @@
-package io.ecu
+package io.ecu.engineering
+
+import io.ecu.BaseUnit
+import io.ecu.RoundingMode
+import io.ecu.UnitCategory
+import io.ecu.UnitDefinition
+import io.ecu.UnitRegistry
 
 /**
  * 압력 단위를 나타내는 클래스
@@ -14,6 +20,19 @@ class Pressure private constructor(
 ) : BaseUnit<Pressure>(baseValue, symbol, displayName, UnitCategory.PRESSURE, precision, roundingMode) {
     
     companion object {
+        init {
+            // 압력 단위 등록
+            UnitRegistry.register(UnitDefinition("Pa", "pascal", UnitCategory.PRESSURE, 1.0, true, setOf("pascal", "pascals")))
+            UnitRegistry.register(UnitDefinition("kPa", "kilopascal", UnitCategory.PRESSURE, 1000.0, aliases = setOf("kilopascal", "kilopascals")))
+            UnitRegistry.register(UnitDefinition("MPa", "megapascal", UnitCategory.PRESSURE, 1_000_000.0, aliases = setOf("megapascal", "megapascals")))
+            UnitRegistry.register(UnitDefinition("bar", "bar", UnitCategory.PRESSURE, 100_000.0, aliases = setOf("bars")))
+            UnitRegistry.register(UnitDefinition("mbar", "millibar", UnitCategory.PRESSURE, 100.0, aliases = setOf("millibar", "millibars")))
+            UnitRegistry.register(UnitDefinition("psi", "pounds per square inch", UnitCategory.PRESSURE, 6894.76, aliases = setOf("PSI")))
+            UnitRegistry.register(UnitDefinition("atm", "atmosphere", UnitCategory.PRESSURE, 101325.0, aliases = setOf("atmosphere", "atmospheres")))
+            UnitRegistry.register(UnitDefinition("mmHg", "millimeter of mercury", UnitCategory.PRESSURE, 133.322, aliases = setOf("mm Hg", "torr")))
+            UnitRegistry.register(UnitDefinition("inHg", "inch of mercury", UnitCategory.PRESSURE, 3386.39, aliases = setOf("in Hg")))
+        }
+        
         /**
          * 문자열에서 압력 객체 생성
          * 

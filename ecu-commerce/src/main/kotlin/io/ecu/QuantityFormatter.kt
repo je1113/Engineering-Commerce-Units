@@ -1,6 +1,7 @@
 package io.ecu
 
 import kotlin.math.floor
+import kotlin.math.pow
 
 /**
  * 수량 표시 형식 포맷터
@@ -125,7 +126,7 @@ class QuantityFormatter(
      * 수량 포맷팅
      */
     fun format(quantity: Quantity): String {
-        val value = quantity.baseValue / (UnitRegistry.getDefinition(quantity.symbol)?.factor ?: 1.0)
+        val value = quantity.baseValue / (UnitRegistry.getDefinition(quantity.symbol)?.baseRatio ?: 1.0)
         val unit = formatUnit(quantity.symbol, value)
         
         return if (options.useCompoundUnits && value > 1) {
@@ -224,7 +225,7 @@ class QuantityFormatter(
      */
     private fun formatDecimalPart(value: Double): String {
         val precision = options.decimalPlaces
-        val factor = kotlin.math.pow(10.0, precision.toDouble())
+        val factor = 10.0.pow(precision)
         val rounded = kotlin.math.round(value * factor).toInt()
         
         return rounded.toString().padStart(precision, '0').take(precision)

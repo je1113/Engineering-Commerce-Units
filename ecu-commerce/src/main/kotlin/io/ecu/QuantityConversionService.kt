@@ -1,5 +1,8 @@
 package io.ecu
 
+import io.ecu.ProductUnitConfiguration
+import io.ecu.RoundingProfile as CoreRoundingProfile
+
 /**
  * 수량 변환 서비스
  * 

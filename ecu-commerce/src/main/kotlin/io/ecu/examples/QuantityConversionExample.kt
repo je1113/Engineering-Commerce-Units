@@ -33,19 +33,19 @@ fun demonstrateRoundingProfiles() {
     println("고객 요청: $requested")
     
     // 소매 프로파일 (개별 판매)
-    val retailRounded = requested.applyRounding(RoundingProfile.RETAIL)
+    val retailRounded = requested.applyRounding(CommerceRoundingProfile.RETAIL)
     println("소매 판매: $retailRounded")
     
     // 도매 프로파일 (12개 박스 단위)
-    val wholesaleRounded = requested.applyRounding(RoundingProfile.WHOLESALE)
+    val wholesaleRounded = requested.applyRounding(CommerceRoundingProfile.WHOLESALE)
     println("도매 판매: $wholesaleRounded (2 boxes)")
     
     // 음료 6팩 프로파일
-    val beverageRounded = requested.applyRounding(RoundingProfile.BEVERAGE_6PACK)
+    val beverageRounded = requested.applyRounding(CommerceRoundingProfile.BEVERAGE_6PACK)
     println("음료 6팩: $beverageRounded (3 packs)")
     
     // 커스텀 프로파일
-    val customProfile = RoundingProfile(
+    val customProfile = CommerceRoundingProfile(
         minimumOrderQuantity = 10.0,
         packagingUnit = 5.0,
         roundingMode = RoundingMode.UP,
@@ -110,10 +110,7 @@ fun demonstrateFormatting() {
     
     val quantity = ECU.quantity("1234.56 pieces")
     
-    println("기본 포맷: ${quantity.format()}")
-    println("컴팩트: ${quantity.toCompactString()}")
-    println("상세: ${quantity.toVerboseString()}")
-    println("회계용: ${quantity.toAccountingString()}")
+    // 기본 포맷: ${quantity.format()}")
     
     // 복합 단위 표현
     val largeQty = ECU.quantity("1250 pieces")
@@ -152,7 +149,7 @@ fun demonstrateBusinessScenarios() {
     // 시나리오 3: 주문 검증
     println("\n[시나리오 3] 주문 수량 검증")
     val orderQuantity = 45.0
-    val eggProfile = RoundingProfile.EGG_DOZEN
+    val eggProfile = CommerceRoundingProfile.EGG_DOZEN
     
     val validation = eggProfile.isValidQuantity(orderQuantity)
     if (!validation.isValid) {

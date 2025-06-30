@@ -20,6 +20,18 @@ class Speed private constructor(
 ) : BaseUnit<Speed>(baseValue, symbol, displayName, UnitCategory.SPEED, precision, roundingMode) {
     
     companion object {
+        init {
+            // 속도 단위 등록
+            UnitRegistry.register(UnitDefinition("m/s", "meter per second", UnitCategory.SPEED, 1.0, true, setOf("mps", "m/sec")))
+            UnitRegistry.register(UnitDefinition("km/h", "kilometer per hour", UnitCategory.SPEED, 1.0/3.6, aliases = setOf("kmh", "kph", "kmph")))
+            UnitRegistry.register(UnitDefinition("mph", "mile per hour", UnitCategory.SPEED, 0.44704, aliases = setOf("mi/h")))
+            UnitRegistry.register(UnitDefinition("ft/s", "foot per second", UnitCategory.SPEED, 0.3048, aliases = setOf("fps", "ft/sec")))
+            UnitRegistry.register(UnitDefinition("kn", "knot", UnitCategory.SPEED, 0.514444, aliases = setOf("knot", "knots", "kt")))
+            UnitRegistry.register(UnitDefinition("Ma", "Mach", UnitCategory.SPEED, 343.0, aliases = setOf("mach", "M")))
+            UnitRegistry.register(UnitDefinition("cm/s", "centimeter per second", UnitCategory.SPEED, 0.01, aliases = setOf("cmps", "cm/sec")))
+            UnitRegistry.register(UnitDefinition("rpm", "revolutions per minute", UnitCategory.SPEED, 0.10471975511966, aliases = setOf("RPM")))
+        }
+        
         /**
          * 문자열에서 속도 객체 생성
          * 
