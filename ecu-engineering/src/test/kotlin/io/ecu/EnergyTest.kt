@@ -67,7 +67,7 @@ class EnergyTest {
 
         // J to cal
         val cal = energy.to("cal")
-        assertEquals(239.0057361376673, cal.value, DELTA)
+        assertEquals(1000.0 / 4.184, cal.value, DELTA)  // 1000 / 4.184 = 239.0057...
 
         // J to BTU
         val btu = energy.to("BTU")

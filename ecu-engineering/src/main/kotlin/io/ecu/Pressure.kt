@@ -1,4 +1,4 @@
-package io.ecu.engineering
+package io.ecu
 
 import io.ecu.BaseUnit
 import io.ecu.RoundingMode

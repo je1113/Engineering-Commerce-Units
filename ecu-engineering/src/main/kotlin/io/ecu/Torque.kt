@@ -19,14 +19,14 @@ class Torque private constructor(
     companion object {
         init {
             // 토크 단위 등록
-            UnitRegistry.register(UnitDefinition("Nm", "Newton-meter", UnitCategory.TORQUE, 1.0, true, setOf("N⋅m", "N-m", "newton-meter")))
-            UnitRegistry.register(UnitDefinition("kNm", "kilonewton-meter", UnitCategory.TORQUE, 1000.0, aliases = setOf("kN⋅m", "kN-m")))
-            UnitRegistry.register(UnitDefinition("mNm", "millinewton-meter", UnitCategory.TORQUE, 0.001, aliases = setOf("mN⋅m", "mN-m")))
-            UnitRegistry.register(UnitDefinition("dNm", "decinewton-meter", UnitCategory.TORQUE, 0.1, aliases = setOf("dN⋅m", "dN-m")))
-            UnitRegistry.register(UnitDefinition("ft-lb", "foot-pound", UnitCategory.TORQUE, 1.35581795, aliases = setOf("ft⋅lb", "ftlb", "lb-ft")))
-            UnitRegistry.register(UnitDefinition("in-lb", "inch-pound", UnitCategory.TORQUE, 0.1129848, aliases = setOf("in⋅lb", "inlb", "lb-in")))
-            UnitRegistry.register(UnitDefinition("kgf⋅m", "kilogram-force meter", UnitCategory.TORQUE, 9.80665, aliases = setOf("kgf-m", "kgfm")))
-            UnitRegistry.register(UnitDefinition("ozf⋅in", "ounce-force inch", UnitCategory.TORQUE, 0.00706155, aliases = setOf("ozf-in", "ozfin")))
+            UnitRegistry.register(UnitDefinition("Nm", "Newton-meter", UnitCategory.TORQUE, 1.0, true, setOf("N⋅m", "N·m", "N-m", "newton-meter")))
+            UnitRegistry.register(UnitDefinition("kNm", "kilonewton-meter", UnitCategory.TORQUE, 1000.0, aliases = setOf("kN⋅m", "kN·m", "kN-m")))
+            UnitRegistry.register(UnitDefinition("mNm", "millinewton-meter", UnitCategory.TORQUE, 0.001, aliases = setOf("mN⋅m", "mN·m", "mN-m")))
+            UnitRegistry.register(UnitDefinition("dNm", "decinewton-meter", UnitCategory.TORQUE, 0.1, aliases = setOf("dN⋅m", "dN·m", "dN-m")))
+            UnitRegistry.register(UnitDefinition("ft-lb", "foot-pound", UnitCategory.TORQUE, 1.35581795, aliases = setOf("ft⋅lb", "ft·lb", "ftlb", "lb-ft", "ft-lbf")))
+            UnitRegistry.register(UnitDefinition("in-lb", "inch-pound", UnitCategory.TORQUE, 0.1129848, aliases = setOf("in⋅lb", "in·lb", "inlb", "lb-in")))
+            UnitRegistry.register(UnitDefinition("kgf⋅m", "kilogram-force meter", UnitCategory.TORQUE, 9.80665, aliases = setOf("kgf-m", "kgf·m", "kgfm")))
+            UnitRegistry.register(UnitDefinition("ozf⋅in", "ounce-force inch", UnitCategory.TORQUE, 0.00706155, aliases = setOf("ozf-in", "ozf·in", "ozfin")))
         }
         
         /**

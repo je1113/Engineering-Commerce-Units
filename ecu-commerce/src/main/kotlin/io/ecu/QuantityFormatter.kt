@@ -31,7 +31,7 @@ class QuantityFormatter(
         val useAbbreviations: Boolean = true,
         
         /** 복합 단위 표현 사용 여부 */
-        val useCompoundUnits: Boolean = true,
+        val useCompoundUnits: Boolean = false,
         
         /** 소수점 자릿수 */
         val decimalPlaces: Int = 2,
@@ -132,7 +132,7 @@ class QuantityFormatter(
         return if (options.useCompoundUnits && value > 1) {
             formatCompound(quantity)
         } else {
-            "${formatNumber(value)} $unit"
+            formatNumberWithUnit(value, unit)
         }
     }
     
@@ -157,16 +157,33 @@ class QuantityFormatter(
     }
     
     /**
-     * 숫자 포맷팅
+     * 숫자와 단위를 함께 포맷팅 (음수 처리 포함)
      */
-    private fun formatNumber(value: Double): String {
-        // 음수 처리
+    private fun formatNumberWithUnit(value: Double, unit: String): String {
         val absValue = kotlin.math.abs(value)
         val isNegative = value < 0
         
+        val formattedNumber = formatNumber(absValue)
+        val numberWithUnit = "$formattedNumber $unit"
+        
+        return if (isNegative) {
+            when (options.negativeFormat) {
+                NegativeFormat.MINUS_SIGN -> "-$numberWithUnit"
+                NegativeFormat.PARENTHESES -> "($numberWithUnit)"
+                NegativeFormat.RED_COLOR -> numberWithUnit // 실제로는 색상 정보와 함께 반환
+            }
+        } else {
+            numberWithUnit
+        }
+    }
+
+    /**
+     * 숫자 포맷팅 (절댓값만 처리)
+     */
+    private fun formatNumber(value: Double): String {
         // 정수 부분과 소수 부분 분리
-        val integerPart = floor(absValue).toLong()
-        val decimalPart = absValue - integerPart
+        val integerPart = floor(value).toLong()
+        val decimalPart = value - integerPart
         
         // 정수 부분 포맷팅
         var formattedInteger = formatIntegerPart(integerPart)
@@ -179,21 +196,10 @@ class QuantityFormatter(
         }
         
         // 조합
-        val formatted = if (formattedDecimal.isNotEmpty()) {
+        return if (formattedDecimal.isNotEmpty()) {
             "$formattedInteger${getDecimalSeparator()}$formattedDecimal"
         } else {
             formattedInteger
-        }
-        
-        // 음수 표시
-        return if (isNegative) {
-            when (options.negativeFormat) {
-                NegativeFormat.MINUS_SIGN -> "-$formatted"
-                NegativeFormat.PARENTHESES -> "($formatted)"
-                NegativeFormat.RED_COLOR -> formatted // 실제로는 색상 정보와 함께 반환
-            }
-        } else {
-            formatted
         }
     }
     
