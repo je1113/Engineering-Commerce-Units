@@ -1,70 +1,45 @@
+// root build.gradle.kts
 plugins {
-    kotlin("jvm") version "1.9.20"
-    id("maven-publish")
+    kotlin("jvm") version "1.9.20" apply false
+    id("org.jetbrains.dokka") version "1.9.10" apply false
 }
 
-group = "io.github.parkyoungmin"
-version = "1.0.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
+allprojects {
+    group = "io.github.je1113"
+    version = "1.0.0-SNAPSHOT"
+    repositories { mavenCentral() }
 }
 
-dependencies {
-    // 테스트 의존성
-    testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-}
+subprojects {
+    // ── 플러그인 적용 ──────────────────────────
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "java-library")
+    apply(plugin = "maven-publish")
+    apply(plugin = "signing")
+    apply(plugin = "org.jetbrains.dokka")
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-            
-            from(components["java"])
-            
-            pom {
-                name.set("Engineering Commerce Units")
-                description.set("A comprehensive unit conversion library for commerce and engineering domains")
-                url.set("https://github.com/parkyoungmin/engineering-commerce-units")
-                
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id.set("parkyoungmin")
-                        name.set("Young Min Park")
-                        email.set("parkyoungmin@example.com")
-                    }
-                }
-                
-                scm {
-                    connection.set("scm:git:git://github.com/parkyoungmin/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:ssh://github.com/parkyoungmin/engineering-commerce-units.git")
-                    url.set("https://github.com/parkyoungmin/engineering-commerce-units/tree/main")
-                }
-            }
+    // ── Kotlin 컴파일 옵션 ─────────────────────
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf(
+                "-Xjsr305=strict",
+                "-Xjvm-default=all"
+            )
         }
     }
+
+    // ── Java 1.8 호환성 ────────────────────────
+    extensions.configure<org.gradle.api.plugins.JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    // ── Kotlin Toolchain(JDK 8 바이트코드) ─────
+    extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+        jvmToolchain(8)
+    }
+
+    // ── 테스트 ────────────────────────────────
+    tasks.withType<Test> { useJUnitPlatform() }
 }
