@@ -91,22 +91,6 @@ jobs:
         ./gradlew :ecu-core:build
         ./gradlew :ecu-core:dokkaJavadoc
     
-    - name: Debug credentials (safe)
-      run: |
-        echo "CENTRAL_TOKEN is set: $([[ -n "$CENTRAL_TOKEN" ]] && echo "yes" || echo "no")"
-        echo "CENTRAL_SECRET is set: $([[ -n "$CENTRAL_SECRET" ]] && echo "yes" || echo "no")"
-        echo "Token length: ${#CENTRAL_TOKEN}"
-        echo "Secret length: ${#CENTRAL_SECRET}"
-        # First 4 characters only for debugging
-        echo "Token starts with: ${CENTRAL_TOKEN:0:4}***"
-    
-    - name: Test credentials with curl
-      run: |
-        curl -u "$CENTRAL_TOKEN:$CENTRAL_SECRET" \
-             -X GET \
-             "https://central.sonatype.com/api/v1/publisher/status" \
-             -v
-    
     - name: Publish to Maven Central
       run: |
         ./gradlew :ecu-core:publishMavenPublicationToOSSRHRepository --info --stacktrace
@@ -150,6 +134,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: ecu-core/build/libs/ecu-core-${{ env.VERSION }}.jar
