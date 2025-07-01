@@ -5,6 +5,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
 dependencies {
@@ -107,19 +108,15 @@ publishing {
             }
         }
     }
-    
+}
+
+nexusPublishing {
     repositories {
-        maven {
-            name = "OSSRH"
-            url = if (project.version.toString().endsWith("SNAPSHOT")) {
-                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            } else {
-                uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            }
-            credentials {
-                username = System.getenv("CENTRAL_TOKEN")
-                password = System.getenv("CENTRAL_SECRET")
-            }
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("MAVEN_USERNAME"))
+            password.set(System.getenv("MAVEN_PASSWORD"))
         }
     }
 }

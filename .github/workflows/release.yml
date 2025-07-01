@@ -52,7 +52,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up JDK 11  # Use JDK 11 for publishing
+    - name: Set up JDK 11
       uses: actions/setup-java@v4
       with:
         java-version: '11'
@@ -63,13 +63,9 @@ jobs:
     
     - name: Extract GPG private key
       run: |
-        echo "${{ secrets.GPG_SIGNING_KEY }}" > private-key.gpg
-        echo "${{ secrets.GPG_SIGNING_PASSWORD }}" > passphrase.txt
-        
-    - name: Import GPG key
-      run: |
-        gpg --batch --yes --passphrase-file passphrase.txt --import private-key.gpg
-        rm private-key.gpg passphrase.txt
+        echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > private-key.gpg
+        gpg --batch --yes --import private-key.gpg
+        rm private-key.gpg
     
     - name: Set version from tag
       if: startsWith(github.ref, 'refs/tags/')
@@ -93,16 +89,16 @@ jobs:
     
     - name: Publish to Maven Central
       run: |
-        ./gradlew :ecu-core:publishMavenPublicationToOSSRHRepository --info --stacktrace
+        ./gradlew :ecu-core:publishToSonatype :ecu-core:closeAndReleaseSonatypeStagingRepository
       env:
-        CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
-        CENTRAL_SECRET: ${{ secrets.CENTRAL_SECRET }}
+        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
     
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: ECU Core v${{ env.VERSION }}
         tag_name: v${{ env.VERSION }}
@@ -132,7 +128,7 @@ jobs:
     
     - name: Upload Release Assets
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
