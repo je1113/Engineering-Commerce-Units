@@ -29,13 +29,13 @@ subprojects {
         }
     }
 
-    // ── Java 1.8 호환성 ────────────────────────
+    // ── Java 및 Kotlin 호환성 설정 ────────────
     extensions.configure<org.gradle.api.plugins.JavaPluginExtension> {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    // ── Kotlin Toolchain(JDK 8 바이트코드) ─────
+    // ── Kotlin Toolchain (자동 다운로드 지원) ────
     extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
         jvmToolchain(8)
     }
