@@ -35,9 +35,19 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    // ── Kotlin Toolchain (자동 다운로드 지원) ────
+    // ── Kotlin Toolchain 설정 ─────────────────
+    // CI 환경에서는 현재 Java 버전 사용, 로컬에서는 Java 8 사용
     extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
-        jvmToolchain(8)
+        val isCI = System.getenv("CI") == "true"
+        val javaVersion = System.getProperty("java.version")
+        
+        if (isCI) {
+            // CI에서는 설정된 Java 버전을 그대로 사용 (툴체인 없이)
+            println("CI environment detected, using current Java version: $javaVersion")
+        } else {
+            // 로컬에서만 Java 8 툴체인 사용
+            jvmToolchain(8)
+        }
     }
 
     // ── 테스트 ────────────────────────────────
