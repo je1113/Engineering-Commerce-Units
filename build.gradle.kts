@@ -2,12 +2,25 @@
 plugins {
     kotlin("jvm") version "1.9.20" apply false
     id("org.jetbrains.dokka") version "1.9.10" apply false
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
 allprojects {
     group = "io.github.je1113"
     version = "1.0.0-SNAPSHOT"
     repositories { mavenCentral() }
+}
+
+// Nexus Publishing 설정 (Root 프로젝트에만)
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("MAVEN_USERNAME"))
+            password.set(System.getenv("MAVEN_PASSWORD"))
+        }
+    }
 }
 
 subprojects {

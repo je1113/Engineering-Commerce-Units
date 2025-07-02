@@ -89,7 +89,7 @@ jobs:
     
     - name: Publish to Maven Central
       run: |
-        ./gradlew :ecu-core:publishToSonatype :ecu-core:closeAndReleaseSonatypeStagingRepository
+        ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

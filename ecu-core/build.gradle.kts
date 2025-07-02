@@ -5,7 +5,6 @@ plugins {
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
 dependencies {
@@ -106,17 +105,6 @@ publishing {
                     url.set("https://github.com/je1113/Engineering-Commerce-Units")
                 }
             }
-        }
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(System.getenv("MAVEN_USERNAME"))
-            password.set(System.getenv("MAVEN_PASSWORD"))
         }
     }
 }
