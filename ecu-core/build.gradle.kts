@@ -112,9 +112,12 @@ publishing {
 signing {
     val signingKey = System.getenv("GPG_SIGNING_KEY")
     val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")
+    val isRelease = !project.version.toString().endsWith("SNAPSHOT")
     
-    if (!signingKey.isNullOrEmpty() && !signingPassword.isNullOrEmpty()) {
+    if (isRelease && !signingKey.isNullOrEmpty() && !signingPassword.isNullOrEmpty()) {
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications["maven"])
+    } else {
+        println("GPG signing is disabled - either SNAPSHOT version or missing GPG credentials")
     }
 }

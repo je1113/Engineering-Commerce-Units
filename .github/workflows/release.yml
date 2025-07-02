@@ -61,11 +61,10 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
-    - name: Extract GPG private key
+    - name: Import GPG key
       run: |
-        echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > private-key.gpg
-        gpg --batch --yes --import private-key.gpg
-        rm private-key.gpg
+        echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d | gpg --batch --import
+        gpg --list-secret-keys --keyid-format LONG
     
     - name: Set version from tag
       if: startsWith(github.ref, 'refs/tags/')
