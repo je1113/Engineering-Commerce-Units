@@ -10,7 +10,7 @@ version = "1.0.0"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8)) // ✅ JDK 8 타겟으로 변경
+        languageVersion.set(JavaLanguageVersion.of(8))
     }
     withSourcesJar()
     withJavadocJar()

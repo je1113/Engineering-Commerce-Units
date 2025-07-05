@@ -3,14 +3,15 @@ plugins {
     java
 }
 
-group = "com.github.je1113"
+group = "com.github.je1113" // GitHub 사용자명
 version = "1.0.0"
 
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -18,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    api(project(":ecu-core"))
+
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }

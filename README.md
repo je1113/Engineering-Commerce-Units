@@ -26,17 +26,34 @@ repositories {
 
 ```kotlin
 dependencies {
-    implementation("com.github.je1113:Engineering-Commerce-Units:1.0.0")
+    implementation("com.github.je1113:ecu-core:1.0.0")
+    implementation("com.github.je1113:ecu-commerce:1.0.0")
+    implementation("com.github.je1113:ecu-engineering:1.0.0")
 }
 ```
 
-> ❗️ `1.0.0`은 GitHub 릴리즈 태그 기준입니다. 최신 버전은 [여기에서 확인하세요](https://jitpack.io/#je1113/Engineering-Commerce-Units).
+> ❗️ JitPack은 GitHub 릴리즈 태그를 기준으로 라이브러리를 배포합니다.  
+> 아래 명령어로 릴리즈 태그를 생성하세요:
+>
+> ```bash
+> git tag 1.0.0
+> git push origin 1.0.0
+> ```
+
+최신 버전은 [여기에서 확인하세요](https://jitpack.io/#je1113/Engineering-Commerce-Units).
 
 ---
 
 ## 🏃 빠른 시작
 
-<기존 예제들 유지 – Java & Kotlin 변환 예시, Batch, Commerce, Engineering 등>
+```kotlin
+import io.ecu.ECU
+
+fun main() {
+    val result = ECU.convert("100cm").to("m")
+    println(result) // 출력: 1.0
+}
+```
 
 ---
 
@@ -44,9 +61,9 @@ dependencies {
 
 ```
 ecu/
-├── ecu-core/          # 핵심 단위 변환 (Java 8+)
-├── ecu-commerce/      # 상거래 특화 기능
-├── ecu-engineering/   # 공학 단위 확장
+├── ecu-core/          # Length, Area 등 기초 단위 변환 제공
+├── ecu-commerce/      # 돈, 무게, 부피 등 전자상거래에서 많이 쓰이는 단위 제공
+├── ecu-engineering/   # 전류, 전압, 토크 등 공학 단위 포함
 ├── examples/          # 사용 예제
 ├── docs/              # 기술 문서
 └── benchmarks/        # 성능 테스트
@@ -57,8 +74,8 @@ ecu/
 ## 📖 문서
 
 - [JitPack 배포 페이지](https://jitpack.io/#je1113/Engineering-Commerce-Units)
-- [마이그레이션 가이드](docs/migration-guide.md)
-- [성능 분석](docs/performance.md)
+- [마이그레이션 가이드](docs/migration-guide.md) _(준비 중)_
+- [성능 분석](docs/performance.md) _(준비 중)_
 
 ---
 
