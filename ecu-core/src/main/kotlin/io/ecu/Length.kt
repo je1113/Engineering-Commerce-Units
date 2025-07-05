@@ -1,6 +1,10 @@
 @file:JvmName("LengthUnit")
 package io.ecu
 
+import io.ecu.cache.GlobalConversionCache
+import io.ecu.validation.UnitValidator
+import io.ecu.metrics.GlobalMetrics
+
 /**
  * 길이 단위를 나타내는 클래스
  * 
@@ -34,6 +38,9 @@ public class Length private constructor(
             val parts = parseValueAndUnit(trimmed)
             val value = parts.first
             val unit = parts.second
+            
+            // 입력값 검증
+            UnitValidator.validateOrThrow(value, unit)
             
             val definition = UnitRegistry.getDefinition(unit)
                 ?: throw IllegalArgumentException("Unknown length unit: $unit")
@@ -104,23 +111,25 @@ public class Length private constructor(
     }
     
     /**
-     * 다른 길이 단위로 변환
+     * 다른 길이 단위로 변환 (메트릭 수집 포함)
      */
     override fun to(targetSymbol: String): Length {
-        val targetDefinition = UnitRegistry.getDefinition(targetSymbol)
-            ?: throw IllegalArgumentException("Unknown length unit: $targetSymbol")
-        
-        if (targetDefinition.category != UnitCategory.LENGTH) {
-            throw IllegalArgumentException("$targetSymbol is not a length unit")
+        return GlobalMetrics.measureConversion(symbol, targetSymbol) {
+            val targetDefinition = UnitRegistry.getDefinition(targetSymbol)
+                ?: throw IllegalArgumentException("Unknown length unit: $targetSymbol")
+            
+            if (targetDefinition.category != UnitCategory.LENGTH) {
+                throw IllegalArgumentException("$targetSymbol is not a length unit")
+            }
+            
+            Length(
+                baseValue = baseValue,
+                symbol = targetDefinition.symbol,
+                displayName = targetDefinition.displayName,
+                precision = precision,
+                roundingMode = roundingMode
+            )
         }
-        
-        return Length(
-            baseValue = baseValue,
-            symbol = targetDefinition.symbol,
-            displayName = targetDefinition.displayName,
-            precision = precision,
-            roundingMode = roundingMode
-        )
     }
     
     override fun createInstance(
@@ -134,13 +143,18 @@ public class Length private constructor(
     }
     
     /**
-     * 현재 단위에서의 값 계산
+     * 현재 단위에서의 값 계산 (캐싱 적용)
      */
     val value: Double
         get() {
             val definition = UnitRegistry.getDefinition(symbol)
                 ?: throw IllegalStateException("Unknown unit: $symbol")
-            return baseValue / definition.baseRatio
+            
+            return GlobalConversionCache.cachedConvert(
+                baseValue, "m", symbol, precision
+            ) {
+                baseValue / definition.baseRatio
+            }
         }
     
     /**

@@ -1,5 +1,11 @@
 package io.ecu
 
+import io.ecu.module.UnitModule
+import io.ecu.module.ModuleRegistry
+import io.ecu.loader.UnitDefinitionLoader
+import io.ecu.loader.UnitDefinitionApplier
+import io.ecu.loader.StringUnitDefinitionLoader
+
 /**
  * Engineering Commerce Units Core의 메인 진입점
  * 
@@ -289,6 +295,53 @@ public object ECU {
         public fun getUnitInfo(unit: String): UnitDefinition? {
             return UnitRegistry.getDefinition(unit)
         }
+    }
+    /**
+     * 모듈 등록
+     * 
+     * Jackson 스타일의 모듈 시스템을 사용하여 커스텀 단위들을 그룹으로 등록합니다.
+     * 
+     * @param module 등록할 단위 모듈
+     * @return 모듈이 성공적으로 등록되었는지 여부
+     * @since 1.1.0
+     */
+    @JvmStatic
+    public fun registerModule(module: UnitModule): Boolean {
+        return ModuleRegistry.register(module)
+    }
+    
+    /**
+     * 여러 모듈을 한 번에 등록
+     * 
+     * @param modules 등록할 모듈들
+     * @since 1.1.0
+     */
+    @JvmStatic
+    public fun registerModules(vararg modules: UnitModule) {
+        ModuleRegistry.registerAll(*modules)
+    }
+    
+    /**
+     * JSON 문자열에서 단위 정의 로드
+     * 
+     * @param json JSON 형식의 단위 정의
+     * @since 1.1.0
+     */
+    @JvmStatic
+    public fun loadFromJson(json: String) {
+        val loader = StringUnitDefinitionLoader(json)
+        UnitDefinitionApplier.applyDefinitions(loader)
+    }
+    
+    /**
+     * 커스텀 로더에서 단위 정의 로드
+     * 
+     * @param loader 단위 정의 로더
+     * @since 1.1.0
+     */
+    @JvmStatic
+    public fun loadFromLoader(loader: UnitDefinitionLoader) {
+        UnitDefinitionApplier.applyDefinitions(loader)
     }
 }
 

@@ -59,6 +59,18 @@ public object UnitRegistry {
     }
     
     /**
+     * 커스텀 단위를 DSL 스타일로 등록
+     * 
+     * @param block 커스텀 단위 빌더 블록
+     * @since 1.1.0
+     */
+    @JvmStatic
+    public fun registerCustomUnit(block: CustomUnitBuilder.() -> kotlin.Unit) {
+        val customUnit = customUnit(block)
+        register(customUnit)
+    }
+    
+    /**
      * 심볼로 단위 정의 조회
      * 
      * @param symbol 조회할 단위 심볼
