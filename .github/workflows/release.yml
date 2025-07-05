@@ -1,4 +1,4 @@
-name: Release to Maven Central
+name: GitHub Release (for JitPack)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., 1.0.0)'
+        description: 'Version to tag and release (e.g., v1.0.0)'
         required: true
         type: string
 
@@ -15,120 +15,24 @@ permissions:
   contents: write
 
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    
-    - name: Build with Gradle
-      run: ./gradlew :ecu-core:build
-    
-    - name: Run tests
-      run: ./gradlew :ecu-core:test
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: ecu-core/build/test-results/test/TEST-*.xml
-
   release:
-    name: Release to Maven Central
-    needs: build-and-test
+    name: Tag & GitHub Release
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    
-    - name: Import GPG key
-      run: |
-        echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d | gpg --batch --import
-        gpg --list-secret-keys --keyid-format LONG
-    
-    - name: Set version from tag
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        sed -i "s/version = \"1.0.0\"/version = \"$VERSION\"/" build.gradle.kts
-    
-    - name: Set version from input
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        VERSION=${{ inputs.version }}
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        sed -i "s/version = \"1.0.0\"/version = \"$VERSION\"/" build.gradle.kts
-    
-    - name: Build release artifacts
-      run: |
-        ./gradlew :ecu-core:clean
-        ./gradlew :ecu-core:build
-        ./gradlew :ecu-core:dokkaJavadoc
-    
-    - name: Publish to Maven Central
-      run: |
-        ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
-      env:
-        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-        GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
-    
-    - name: Create GitHub Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
-      with:
-        name: ECU Core v${{ env.VERSION }}
-        tag_name: v${{ env.VERSION }}
-        body: |
-          ## ECU Core Library v${{ env.VERSION }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
-          ### Installation
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-          #### Maven
-          ```xml
-          <dependency>
-              <groupId>io.github.je1113</groupId>
-              <artifactId>ecu-core</artifactId>
-              <version>${{ env.VERSION }}</version>
-          </dependency>
-          ```
+      - name: Build with Gradle
+        run: ./gradlew build
 
-          #### Gradle
-          ```kotlin
-          implementation("io.github.je1113:ecu-core:${{ env.VERSION }}")
-          ```
-
-          ### What's New
-          See [CHANGELOG.md](https://github.com/je1113/engineering-commerce-units/blob/main/CHANGELOG.md)
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Upload Release Assets
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        files: ecu-core/build/libs/ecu-core-${{ env.VERSION }}.jar
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

@@ -1,59 +1,27 @@
 plugins {
     kotlin("jvm")
-    id("maven-publish")
+    java
+}
+
+group = "com.github.je1113"
+version = "1.0.0"
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    api(project(":ecu-core"))
-    
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }
 
-tasks.jar {
-    manifest {
-        attributes(
-            "Implementation-Title" to "ECU Commerce Module",
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "Jeon Joo Eun",
-            "Created-By" to "Gradle ${gradle.gradleVersion}",
-            "Built-JDK" to System.getProperty("java.version"),
-            "Target-JDK" to "1.8"
-        )
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-            
-            pom {
-                name.set("ECU Commerce Module")
-                description.set("Commerce-specific extensions for ECU Core library")
-                url.set("https://github.com/je1113/engineering-commerce-units")
-                
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id.set("je1113")
-                        name.set("Jeon Jooeun")
-                        email.set("jje320594@gmail.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:https://github.com/je1113/engineering-commerce-units.git")
-                    developerConnection.set("scm:git:git@github.com:je1113/engineering-commerce-units.git")
-                    url.set("https://github.com/je1113/engineering-commerce-units")
-                }
-            }
-        }
-    }
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
