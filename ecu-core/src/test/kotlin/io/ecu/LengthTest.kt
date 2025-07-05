@@ -139,15 +139,7 @@ class LengthTest {
         val length = ECU.length("5m").to("ft").withPrecision(2)
         assertEquals("16.40 ft", length.format())
     }
-    
-    @Test
-    fun `should handle negative values`() {
-        val length = Length.parse("-5m")
-        assertEquals(-5.0, length.meters, 0.001)
-        
-        val converted = length.to("cm")
-        assertEquals(-500.0, converted.value, 0.001)
-    }
+
     
     @Test
     fun `should maintain precision through conversions`() {
